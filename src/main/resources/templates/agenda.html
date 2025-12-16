@@ -273,11 +273,33 @@
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/pt-br.js'></script>
 
 <script>
-    // Inicialização da Sidebar e Overlay
+    // VARIAVEIS GLOBAIS
+    let eventoModal; // Variável global para o modal
+    let calendar;    // Variável global para o calendário
+
+    // ------------------------------
+    // 1. INICIALIZAÇÃO GERAL
+    // ------------------------------
     document.addEventListener('DOMContentLoaded', function() {
+        // Inicializa o Modal do Bootstrap
+        const modalEl = document.getElementById('modalNovoEvento');
+        if (modalEl) {
+            eventoModal = new bootstrap.Modal(modalEl);
+
+            // Limpa o formulário sempre que o modal fechar
+            modalEl.addEventListener('hidden.bs.modal', function () {
+                const form = document.getElementById('formEvento');
+                if(form) form.reset();
+                document.getElementById('eventoId').value = "";
+                document.getElementById('modalNovoEventoLabel').textContent = "Criar Novo Compromisso";
+                const btnDel = document.getElementById('btnDeletarEvento');
+                if(btnDel) btnDel.style.display = 'none';
+            });
+        }
+
+        // Configuração da Sidebar e Footer
         const sidebar = document.getElementById('sidebarNav');
         const overlay = document.querySelector('.sidebar-overlay');
-
         if (sidebar && overlay) {
             sidebar.addEventListener('show.bs.collapse', () => overlay.style.display = 'block');
             sidebar.addEventListener('hide.bs.collapse', () => overlay.style.display = 'none');
@@ -286,152 +308,79 @@
                 if (bsCollapse) bsCollapse.hide();
             });
         }
-        document.getElementById('footerYear').textContent = new Date().getFullYear();
+        const footerYear = document.getElementById('footerYear');
+        if(footerYear) footerYear.textContent = new Date().getFullYear();
     });
 
     // ------------------------------
-    // CARREGAR EVENTOS DO QUTE
+    // 2. DADOS DOS EVENTOS (DO JAVA)
     // ------------------------------
+    // A vírgula no final evita erros de sintaxe
     const eventosCarregados = [
         {#for ev in eventos}
         {
-            id: {ev.id},
-            title: "{ev.title | js}",
-            start: "{ev.start}",
-            end: "{ev.end}",
-            color: "{ev.color}",
-            allDay: {ev.allDay},
-            description: "{ev.description | js}",
-            tipo: "{ev.tipo}"
-        }{#if hasNext},{/if}
+            "id": {ev.id},
+            "title": "{ev.title | js}",
+            "start": "{ev.start}",
+            "end": "{ev.end}",
+            "color": "{ev.color}",
+            "allDay": {ev.allDay},
+            "description": "{ev.description | js}",
+            "tipo": "{ev.tipo}"
+        },
         {/for}
     ];
 
-    // Corrige "null" string para null literal e garante que description não seja null
+    console.log("Eventos carregados:", eventosCarregados);
+
+    // Corrige datas nulas para não travar o FullCalendar
     const eventosCorrigidos = eventosCarregados.map(e => ({
         ...e,
-        end: e.end && e.end.trim() !== "" ? e.end : null,
-        description: e.description ?? ""
+        end: (e.end && e.end !== "null" && e.end.trim() !== "") ? e.end : null,
+        description: e.description || ""
     }));
 
     // ------------------------------
-    // Inicialização do Calendário
+    // 3. CALENDÁRIO
     // ------------------------------
     document.addEventListener('DOMContentLoaded', function() {
-
         const calendarEl = document.getElementById('calendar');
-
         if (!calendarEl) {
-            console.error("Elemento 'calendar' não encontrado. Verifique o ID no HTML.");
+            console.error("Elemento #calendar não encontrado.");
             return;
         }
 
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            locale: 'pt-br',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
-            },
-            events: eventosCorrigidos,
-            editable: true,
-            selectable: true,
-            eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false },
+        try {
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'pt-br',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                events: eventosCorrigidos,
+                editable: true,
+                selectable: true,
+                eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false },
 
-            select: function(info) { abrirModalNovo(info.startStr, info.endStr, info.allDay); },
-            eventClick: function(info) { abrirEdicaoEvento(info.event.id); },
-            eventChange: function(info) {
-                // Aqui você pode adicionar a lógica para salvar arrastar/soltar ou resize
-                console.log("Evento alterado. Implementar fetch de update aqui.");
-            }
-        });
+                select: function(info) { abrirModalNovo(info.startStr, info.endStr, info.allDay); },
+                eventClick: function(info) { abrirEdicaoEvento(info.event.id); }
+            });
 
-        calendar.render();
+            calendar.render();
 
-        atualizarEstatisticas(eventosCorrigidos);
-        preencherProximosEventos(eventosCorrigidos);
+            atualizarEstatisticas(eventosCorrigidos);
+            preencherProximosEventos(eventosCorrigidos);
+        } catch (e) {
+            console.error("Erro ao iniciar calendário:", e);
+        }
     });
 
     // ------------------------------
-    // Funções de Utilitários
+    // 4. FUNÇÕES DE SUPORTE
     // ------------------------------
     const formatadorData = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-
-    function preencherProximosEventos(eventos) {
-        const listaEl = document.getElementById('proximosEventosList');
-        const agora = new Date();
-
-        const eventosFuturos = eventos
-            .filter(e => new Date(e.start) >= agora)
-            .sort((a, b) => new Date(a.start) - new Date(b.start));
-
-        listaEl.innerHTML = '';
-
-        if (eventosFuturos.length === 0) {
-            listaEl.innerHTML = '<p class="text-muted small text-center mt-3">Nenhum evento futuro encontrado.</p>';
-            return;
-        }
-
-        eventosFuturos.slice(0, 5).forEach(e => {
-            const dataHora = formatadorData.format(new Date(e.start));
-            const item = document.createElement('div');
-            item.className = 'evento-item';
-            item.style.borderLeftColor = e.color;
-
-            item.innerHTML = `
-        <strong class="d-block text-truncate">${e.title}</strong>
-        <small>
-            <i class="bi bi-clock me-1"></i> ${dataHora}
-        </small>
-    `;
-            listaEl.appendChild(item);
-        });
-    }
-
-    // ------------------------------
-    // Estatísticas do Dashboard
-    // ------------------------------
-    function atualizarEstatisticas(eventos) {
-        const hoje = new Date();
-        hoje.setHours(0, 0, 0, 0);
-
-        const compromissosHoje = eventos.filter(e => {
-            const dataEvento = new Date(e.start);
-            return dataEvento.toDateString() === hoje.toDateString();
-        }).length;
-
-        const proximos7Dias = new Date(hoje.getTime() + 7 * 86400000);
-
-        const compromissosSemana = eventos.filter(e => {
-            const d = new Date(e.start);
-            return d >= hoje && d <= proximos7Dias;
-        }).length;
-
-        const audiencias = eventos.filter(e =>
-            e.title.toLowerCase().includes("audiência") && new Date(e.start) > new Date()
-        ).length;
-
-        document.getElementById("compromissosHoje").textContent = compromissosHoje;
-        document.getElementById("compromissosSemana").textContent = compromissosSemana;
-        document.getElementById("audiencias").textContent = audiencias;
-    }
-
-
-    // ------------------------------
-    // MODAL / FORMULÁRIO GESTÃO
-    // ------------------------------
-    const eventoModal = new bootstrap.Modal(document.getElementById('modalNovoEvento'));
-    const btnDeletar = document.getElementById('btnDeletarEvento');
-
-    document.getElementById('modalNovoEvento').addEventListener('hidden.bs.modal', function () {
-        document.getElementById('formEvento').reset();
-        document.getElementById('eventoId').value = "";
-        document.getElementById('modalNovoEventoLabel').textContent = "Criar Novo Compromisso";
-
-        // Esconde o botão de deletar ao fechar
-        if (btnDeletar) btnDeletar.style.display = 'none';
-    });
 
     function formatFullCalendarDate(d) {
         if (!d || d === "null") return "";
@@ -439,124 +388,163 @@
     }
 
     function abrirModalNovo(start, end, allDay) {
-        document.getElementById('modalNovoEventoLabel').textContent = "Criar Novo Compromisso";
+        if(!eventoModal) return;
 
+        document.getElementById('modalNovoEventoLabel').textContent = "Criar Novo Compromisso";
         document.getElementById('eventoId').value = "";
         document.getElementById('tituloEvento').value = "";
         document.getElementById('descricaoEvento').value = "";
         document.getElementById('corEvento').value = "#007bff";
 
+        // Preenche as datas
         document.getElementById('dataInicio').value = formatFullCalendarDate(start);
         document.getElementById('dataFim').value = formatFullCalendarDate(end);
-        document.getElementById('allDay').checked = allDay;
 
-        if (btnDeletar) btnDeletar.style.display = 'none';
+        const chk = document.getElementById('allDay');
+        if(chk) chk.checked = allDay;
+
+        // Esconde botão deletar
+        const btnDel = document.getElementById('btnDeletarEvento');
+        if(btnDel) btnDel.style.display = 'none';
 
         eventoModal.show();
     }
 
     function abrirEdicaoEvento(id) {
+        if(!eventoModal) return;
         const ev = eventosCorrigidos.find(e => e.id == id);
-        if (!ev) return alert("Evento não encontrado!");
+        if (!ev) return alert("Erro: Evento não encontrado.");
 
-        document.getElementById('modalNovoEventoLabel').textContent = "Editar Compromisso: " + ev.title;
-
+        document.getElementById('modalNovoEventoLabel').textContent = "Editar: " + ev.title;
         document.getElementById('eventoId').value = ev.id;
         document.getElementById('tituloEvento').value = ev.title;
-        document.getElementById('descricaoEvento').value = ev.description ?? "";
+        document.getElementById('descricaoEvento').value = ev.description;
         document.getElementById('dataInicio').value = formatFullCalendarDate(ev.start);
         document.getElementById('dataFim').value = formatFullCalendarDate(ev.end);
         document.getElementById('corEvento').value = ev.color;
-        document.getElementById('allDay').checked = ev.allDay;
 
-        // Mostra o botão de deletar na edição
-        if (btnDeletar) btnDeletar.style.display = 'inline-block';
+        const chk = document.getElementById('allDay');
+        if(chk) chk.checked = ev.allDay;
+
+        const btnDel = document.getElementById('btnDeletarEvento');
+        if(btnDel) btnDel.style.display = 'inline-block';
 
         eventoModal.show();
     }
 
-    // ------------------------------
-    // DELETAR EVENTO (IMPLEMENTAÇÃO REAL VIA FETCH)
-    // ------------------------------
-    function deletarEvento() {
-        const id = document.getElementById('eventoId').value;
-        if (!id || !confirm('Tem certeza que deseja deletar este compromisso?')) return;
+    function preencherProximosEventos(eventos) {
+        const listaEl = document.getElementById('proximosEventosList');
+        if(!listaEl) return;
 
-        fetch(`/agenda/evento/${id}`, {
-            method: 'DELETE',
-        })
-            .then(response => {
-                if (response.status === 204) { // 204 No Content = sucesso
-                    alert("Evento deletado com sucesso.");
-                    eventoModal.hide();
-                    window.location.reload();
-                } else if (response.status === 403) {
-                    alert("Erro: Você não tem permissão para deletar este evento.");
-                } else {
-                    alert(`Erro ${response.status}: Falha ao deletar o evento.`);
-                }
-            })
-            .catch(error => {
-                console.error('Erro de deleção:', error);
-                alert(`Erro de comunicação ao deletar evento: ${error.message}`);
-            });
+        const agora = new Date();
+        const futuros = eventos
+            .filter(e => new Date(e.start) >= agora)
+            .sort((a, b) => new Date(a.start) - new Date(b.start))
+            .slice(0, 5);
+
+        listaEl.innerHTML = '';
+        if (futuros.length === 0) {
+            listaEl.innerHTML = '<p class="text-muted small text-center mt-3">Nenhum evento futuro.</p>';
+            return;
+        }
+
+        futuros.forEach(e => {
+            const dataHora = formatadorData.format(new Date(e.start));
+            const item = document.createElement('div');
+            item.className = 'evento-item';
+            item.style.borderLeftColor = e.color || '#3498db';
+            item.innerHTML = `<strong class="d-block text-truncate">${e.title}</strong><small><i class="bi bi-clock me-1"></i> ${dataHora}</small>`;
+            listaEl.appendChild(item);
+        });
     }
 
+    function atualizarEstatisticas(eventos) {
+        const elHoje = document.getElementById("compromissosHoje");
+        if(!elHoje) return;
+
+        const hoje = new Date();
+        hoje.setHours(0,0,0,0);
+        const semana = new Date(hoje.getTime() + 7*86400000);
+
+        const qtdHoje = eventos.filter(e => new Date(e.start).toDateString() === hoje.toDateString()).length;
+        const qtdSem = eventos.filter(e => { const d=new Date(e.start); return d>=hoje && d<=semana; }).length;
+        const qtdAud = eventos.filter(e => (e.title||"").toLowerCase().includes("audiência") && new Date(e.start)>new Date()).length;
+
+        document.getElementById("compromissosHoje").textContent = qtdHoje;
+        document.getElementById("compromissosSemana").textContent = qtdSem;
+        document.getElementById("audiencias").textContent = qtdAud;
+    }
 
     // ------------------------------
-    // SALVAR EVENTO (IMPLEMENTAÇÃO REAL VIA FETCH)
+    // 5. AÇÕES DE SALVAR E DELETAR
     // ------------------------------
-    document.getElementById("formEvento").addEventListener("submit", function (event) {
-        event.preventDefault();
 
-        const form = this;
-        const btn = document.getElementById("btnSalvarEvento");
-        const isEditing = document.getElementById('eventoId').value !== "";
+    // Deletar
+    function deletarEvento() {
+        const id = document.getElementById('eventoId').value;
+        if (!id || !confirm('Excluir este compromisso?')) return;
 
-        btn.disabled = true;
-        btn.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Salvando...";
-
-        const formData = {
-            id: isEditing ? parseInt(form.elements.id.value) : null,
-            titulo: form.elements.titulo.value,
-            descricao: form.elements.descricao.value,
-            dataInicio: form.elements.dataInicio.value,
-            dataFim: form.elements.dataFim.value || null,
-            cor: form.elements.cor.value,
-            diaInteiro: form.elements.diaInteiro.checked,
-        };
-
-        fetch('/agenda/evento', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-        })
-            .then(response => {
-                if (!response.ok) {
-                    const status = response.status;
-                    if (status === 403) {
-                        throw new Error('Você não tem permissão para editar/criar este evento.');
-                    }
-                    throw new Error(`Erro ${status}: Falha ao salvar o evento.`);
+        fetch(`/agenda/evento/${id}`, { method: 'DELETE' })
+            .then(r => {
+                if(r.status===204) {
+                    alert("Excluído!");
+                    eventoModal.hide(); // Aqui estava o erro de digitação antes
+                    window.location.reload();
+                } else {
+                    alert("Erro ao excluir. Status: "+r.status);
                 }
-                return response.json();
             })
-            .then(data => {
-                alert("Evento salvo com sucesso.");
-                eventoModal.hide();
-                window.location.reload();
+            .catch(e => alert("Erro de rede: "+e));
+    }
+
+    // Salvar
+    const formEv = document.getElementById("formEvento");
+    if(formEv) {
+        formEv.addEventListener("submit", function (e) {
+            e.preventDefault(); // Impede o recarregamento da página (URL ?id=...)
+
+            const btn = document.getElementById("btnSalvarEvento");
+            const isEdit = document.getElementById('eventoId').value !== "";
+            const originalText = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = "Salvando...";
+
+            const dados = {
+                id: isEdit ? parseInt(this.elements.id.value) : null,
+                title: this.elements.titulo.value,
+                description: this.elements.descricao.value,
+                start: this.elements.dataInicio.value,
+                end: this.elements.dataFim.value || null,
+                color: this.elements.cor.value,
+                allDay: this.elements.diaInteiro.checked,
+                tipo: "OUTROS"
+            };
+
+            fetch('/agenda/evento', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
             })
-            .catch(error => {
-                console.error('Erro de salvamento:', error);
-                alert(`Erro ao salvar evento: ${error.message}`);
-            })
-            .finally(() => {
-                btn.disabled = false;
-                btn.innerHTML = "Salvar";
-            });
-    });
+                .then(r => {
+                    if(!r.ok) throw new Error("HTTP "+r.status);
+                    return r.json();
+                })
+                .then(() => {
+                    alert("Salvo com sucesso!");
+                    eventoModal.hide(); // Verifique se aqui está escrito eventoModal corretamente
+                    window.location.reload();
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Erro ao salvar: " + err.message);
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                });
+        });
+    }
 </script>
 
 </body>

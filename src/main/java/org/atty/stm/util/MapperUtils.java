@@ -119,16 +119,20 @@ public class MapperUtils {
         dto.setTitle(e.titulo);
         dto.setDescription(e.descricao);
 
+        // Conversão de datas
         dto.setStart(e.dataInicio != null ? e.dataInicio.toString() : null);
         dto.setEnd(e.dataFim != null ? e.dataFim.toString() : null);
 
         dto.setColor(e.cor);
-
         dto.setProcessoId(e.processo != null ? e.processo.id : null);
+
+        // --- ADICIONE ESTAS DUAS LINHAS ---
+        dto.setTipo(e.tipo);
+        dto.setAllDay(e.diaInteiro);
+        // ----------------------------------
 
         return dto;
     }
-
 
     // -----------------------------------------------------
     // FILES
