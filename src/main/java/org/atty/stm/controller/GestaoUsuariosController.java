@@ -34,61 +34,28 @@ public class GestaoUsuariosController extends ControllerBase {
     @GET
     @Produces(MediaType.TEXT_HTML)
     public TemplateInstance getGestaoUsuariosPage() {
-        Usuario usuario = getUsuarioEntity(); // Recupera usuário logado (do ControllerBase)
-
-        // 3. Renderiza o template enviando o objeto usuario
+        Usuario usuario = getUsuarioEntity();
         return gestaoUsuariosTemplate.data("usuario", usuario);
     }
 
-    // ... (Métodos de renderização, /api/todos, /api/advogados/pendentes, /api/{id}/toggle-ativo, /api/estatisticas - SEM MUDANÇAS)
+    // --- MÉTODOS QUE ESTAVAM FALTANDO ---
 
-    // 5. API: APROVAR ADVOGADO (AGORA PURO)
-    @PUT
-    @Path("/api/advogados/aprovar/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response aprovarAdvogado(@PathParam("id") Long id) {
-        Usuario master = getUsuarioEntity();
-        // Chama o Service. Se houver erro de negócio, o Service lança WebApplicationException,
-        // que é automaticamente transformada em resposta HTTP (e.g., 404) pelo Quarkus.
-        UsuarioDTO usuario = advogadoVerificacaoService.aprovar(id, master, getIpAddress(), getUserAgent());
-        // Retorna o DTO no sucesso (200 OK)
-        return Response.ok(usuario).build();
-    }
-
-    // 6. API: REJEITAR ADVOGADO (AGORA PURO)
-    @POST
-    @Path("/api/advogados/rejeitar/{id}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response rejeitarAdvogado(@PathParam("id") Long id, Map<String, String> data) {
-        Usuario master = getUsuarioEntity();
-        String comentario = data.get("comentario");
-
-        // Chama o Service. Lógica de erro no Service.
-        UsuarioDTO usuario = advogadoVerificacaoService.rejeitar(id, master, comentario, getIpAddress(), getUserAgent());
-        // Retorna o DTO no sucesso (200 OK)
-        return Response.ok(usuario).build();
-    }
-
-    // Endpoint de Estatísticas
     @GET
     @Path("/api/estatisticas")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getEstatisticas() {
-        // Reutiliza a lógica do serviço de usuário ou cria um DTO específico
-        // Exemplo: return Response.ok(usuarioService.getEstatisticasDashboard()).build();
+        // Usa o serviço de usuário para pegar os totais
         return Response.ok(usuarioService.getEstatisticasDashboard()).build();
     }
 
-    // Endpoint de Pendentes
     @GET
     @Path("/api/advogados/pendentes")
     @Produces(MediaType.APPLICATION_JSON)
     public Response listarPendentes() {
+        // Usa o serviço de verificação para listar pendentes
         return Response.ok(advogadoVerificacaoService.listarPendentes()).build();
     }
 
-    // Endpoint de Todos
     @GET
     @Path("/api/todos")
     @Produces(MediaType.APPLICATION_JSON)
@@ -96,12 +63,33 @@ public class GestaoUsuariosController extends ControllerBase {
         return Response.ok(usuarioService.listarTodos()).build();
     }
 
-    // Endpoint Toggle Ativo
     @PUT
     @Path("/api/{id}/toggle-ativo")
     @Produces(MediaType.APPLICATION_JSON)
     public Response toggleAtivo(@PathParam("id") Long id) {
         Usuario master = getUsuarioEntity();
         return Response.ok(usuarioService.toggleAtivo(id, master, getIpAddress(), getUserAgent())).build();
+    }
+
+    // --- FIM DOS MÉTODOS QUE FALTAVAM ---
+
+    @PUT
+    @Path("/api/advogados/aprovar/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response aprovarAdvogado(@PathParam("id") Long id) {
+        Usuario master = getUsuarioEntity();
+        UsuarioDTO usuario = advogadoVerificacaoService.aprovar(id, master, getIpAddress(), getUserAgent());
+        return Response.ok(usuario).build();
+    }
+
+    @POST
+    @Path("/api/advogados/rejeitar/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response rejeitarAdvogado(@PathParam("id") Long id, Map<String, String> data) {
+        Usuario master = getUsuarioEntity();
+        String comentario = data.get("comentario");
+        UsuarioDTO usuario = advogadoVerificacaoService.rejeitar(id, master, comentario, getIpAddress(), getUserAgent());
+        return Response.ok(usuario).build();
     }
 }
