@@ -337,11 +337,15 @@
     // ----------------------------------------------------
     async function salvarNovoStatus(processoId) {
         const novoStatus = document.getElementById('novoStatus').value;
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalStatus'));
+        const modalElement = document.getElementById('modalStatus');
+        const modal = bootstrap.Modal.getInstance(modalElement);
 
         try {
-            // Endpoint deve ser algo como PUT /processodetalhe/{id}/status
-            const response = await fetchAutenticado(`/processodetalhe/${processoId}/status`, {
+            // CORREÇÃO AQUI: Uso de aspas simples e concatenação (+) em vez de crase (`)
+            // Isso impede que o Qute tente ler a variável JS
+            const url = '/processodetalhe/' + processoId + '/status';
+
+            const response = await fetchAutenticado(url, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: novoStatus })
@@ -353,12 +357,18 @@
             }
 
             if (response.ok) {
-                modal.hide();
+                if(modal) modal.hide();
                 alert('Status atualizado com sucesso!');
                 window.location.reload();
             } else {
-                const errorData = await response.json();
-                alert('Erro ao atualizar status: ' + (errorData.error || response.statusText));
+                // Tenta ler o erro como JSON, se falhar, usa o statusText
+                let errorMsg = response.statusText;
+                try {
+                    const errorData = await response.json();
+                    if(errorData && errorData.error) errorMsg = errorData.error;
+                } catch(e) {} // Ignora erro de parse se não for JSON
+
+                alert('Erro ao atualizar status: ' + errorMsg);
             }
         } catch (error) {
             console.error('Erro ao atualizar status:', error);
@@ -375,8 +385,10 @@
         }
 
         try {
-            // Endpoint deve ser DELETE /processodetalhe/{id}
-            const response = await fetchAutenticado(`/processodetalhe/${processoId}`, {
+            // CORREÇÃO AQUI TAMBÉM: Concatenação de string
+            const url = '/processodetalhe/' + processoId;
+
+            const response = await fetchAutenticado(url, {
                 method: 'DELETE'
             });
 
@@ -387,11 +399,15 @@
 
             if (response.ok) {
                 alert('Processo excluído com sucesso!');
-                // Redireciona para a lista (CORRIGIDO)
                 window.location.href = '/processos';
             } else {
-                const errorData = await response.json();
-                alert('Erro ao excluir processo: ' + (errorData.error || response.statusText));
+                let errorMsg = response.statusText;
+                try {
+                    const errorData = await response.json();
+                    if(errorData && errorData.error) errorMsg = errorData.error;
+                } catch(e) {}
+
+                alert('Erro ao excluir processo: ' + errorMsg);
             }
         } catch (error) {
             console.error('Erro ao excluir processo:', error);
