@@ -25,23 +25,35 @@ public class AdvogadoVerificacaoService {
     @Inject
     UsuarioService usuarioService;
 
-    // MÉTODO REINSERIDO: Listar advogados pendentes
+    // Listar advogados pendentes
     public List<UsuarioDTO> listarPendentes() {
         List<AdvogadoVerificacao> verificacoes = repository.findPendentes();
 
         return verificacoes.stream()
-                // Mapeia do objeto de Verificação para o objeto de Usuário (advogado)
                 .map(v -> v.advogado)
-                // Converte a entidade Usuário para o DTO
                 .map(MapperUtils::toDTO)
                 .collect(Collectors.toList());
     }
 
-    // Aprovar verificação de advogado
+    // Aprovar verificação de advogado (CORRIGIDO: Busca por ID do Advogado)
     @Transactional
-    public UsuarioDTO aprovar(Long id, Usuario admin, String ip, String ua) {
-        AdvogadoVerificacao v = repository.findById(id);
-        if (v == null) throw new WebApplicationException("Verificação não encontrada", Response.Status.NOT_FOUND);
+    public UsuarioDTO aprovar(Long advogadoId, Usuario admin, String ip, String ua) {
+        // CORREÇÃO: Usa findByAdvogadoId em vez de findById
+        AdvogadoVerificacao v = repository.findByAdvogadoId(advogadoId);
+
+        // Se não achar pelo ID do advogado, tenta achar pelo ID da verificação (fallback)
+        if (v == null) {
+            v = repository.findById(advogadoId);
+        }
+
+        if (v == null) {
+            throw new WebApplicationException("Verificação não encontrada para o advogado ID: " + advogadoId, Response.Status.NOT_FOUND);
+        }
+
+        // Se já estiver aprovado ou rejeitado, avisa
+        if (!"PENDENTE".equals(v.status)) {
+            throw new WebApplicationException("Esta verificação já foi processada (" + v.status + ")", Response.Status.BAD_REQUEST);
+        }
 
         v.status = "APROVADO";
         v.dataVerificacao = LocalDateTime.now();
@@ -51,7 +63,6 @@ public class AdvogadoVerificacaoService {
         // Delega a aprovação do usuário para o UsuarioService
         UsuarioDTO usuarioAtualizado = usuarioService.aprovarUsuario(usuarioId, admin, ip, ua);
 
-
         auditoriaService.registrarAcaoSimples(
                 admin, "APROVACAO_VERIFICACAO", "ADVOGADO_VERIFICACAO", v.id,
                 "Verificação aprovada para o usuário ID: " + usuarioId, ip, ua
@@ -59,11 +70,19 @@ public class AdvogadoVerificacaoService {
         return usuarioAtualizado;
     }
 
-    // Rejeitar verificação de advogado
+    // Rejeitar verificação de advogado (CORRIGIDO: Busca por ID do Advogado)
     @Transactional
-    public UsuarioDTO rejeitar(Long id, Usuario admin, String comentario, String ip, String ua) {
-        AdvogadoVerificacao v = repository.findById(id);
-        if (v == null) throw new WebApplicationException("Verificação não encontrada", Response.Status.NOT_FOUND);
+    public UsuarioDTO rejeitar(Long advogadoId, Usuario admin, String comentario, String ip, String ua) {
+        // CORREÇÃO: Usa findByAdvogadoId em vez de findById
+        AdvogadoVerificacao v = repository.findByAdvogadoId(advogadoId);
+
+        if (v == null) {
+            v = repository.findById(advogadoId);
+        }
+
+        if (v == null) {
+            throw new WebApplicationException("Verificação não encontrada para o advogado ID: " + advogadoId, Response.Status.NOT_FOUND);
+        }
 
         v.status = "REJEITADO";
         v.comentariosAdmin = comentario;
