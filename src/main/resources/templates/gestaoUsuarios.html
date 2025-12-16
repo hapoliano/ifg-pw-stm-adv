@@ -307,7 +307,7 @@
     async function carregarEstatisticas() {
         try {
             // Usa o endpoint de estatísticas já criado
-            const response = await fetch(`${API_BASE}/estatisticas`);
+            const response = await fetch(API_BASE + '/estatisticas');
             const stats = await response.json();
             document.getElementById('statTotalUsuarios').textContent = stats.totalUsuarios || 0;
             document.getElementById('statPendentes').textContent = stats.advogadosPendentes || 0;
@@ -325,7 +325,7 @@
 
         try {
             // PUT /gestao-usuarios/api/advogados/aprovar/{id}
-            const response = await fetch(`${API_BASE}/advogados/aprovar/${id}`, { method: 'PUT' });
+            const response = await fetch(API_BASE + '/advogados/aprovar/' + id, { method: 'PUT' });
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -347,7 +347,7 @@
 
         try {
             // POST /gestao-usuarios/api/advogados/rejeitar/{id}
-            const response = await fetch(`${API_BASE}/advogados/rejeitar/${id}`, {
+            const response = await fetch(API_BASE + '/advogados/rejeitar/' + id, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ comentario: comentario })
@@ -374,7 +374,7 @@
 
         try {
             // GET /gestao-usuarios/api/advogados/pendentes
-            const response = await fetch(`${API_BASE}/advogados/pendentes`);
+            const response = await fetch(API_BASE + '/advogados/pendentes');
             const lista = await response.json();
 
             if (!lista || lista.length === 0) {
@@ -412,7 +412,7 @@
 
         try {
             // PUT /gestao-usuarios/api/{id}/toggle-ativo
-            const response = await fetch(`${API_BASE}/${id}/toggle-ativo`, { method: 'PUT' });
+            const response = await fetch(API_BASE + '/' + id + '/toggle-ativo', { method: 'PUT' });
 
             if (!response.ok) throw new Error(`Falha ao ${acao} usuário.`);
 
@@ -431,7 +431,7 @@
 
         try {
             // GET /gestao-usuarios/api/todos
-            const response = await fetch(`${API_BASE}/todos`);
+            const response = await fetch(API_BASE + '/todos');
             const lista = await response.json();
 
             if (!lista || lista.length === 0) {

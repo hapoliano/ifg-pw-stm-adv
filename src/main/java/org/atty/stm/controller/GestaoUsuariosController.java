@@ -69,4 +69,39 @@ public class GestaoUsuariosController extends ControllerBase {
         // Retorna o DTO no sucesso (200 OK)
         return Response.ok(usuario).build();
     }
+
+    // Endpoint de Estatísticas
+    @GET
+    @Path("/api/estatisticas")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getEstatisticas() {
+        // Reutiliza a lógica do serviço de usuário ou cria um DTO específico
+        // Exemplo: return Response.ok(usuarioService.getEstatisticasDashboard()).build();
+        return Response.ok(usuarioService.getEstatisticasDashboard()).build();
+    }
+
+    // Endpoint de Pendentes
+    @GET
+    @Path("/api/advogados/pendentes")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listarPendentes() {
+        return Response.ok(advogadoVerificacaoService.listarPendentes()).build();
+    }
+
+    // Endpoint de Todos
+    @GET
+    @Path("/api/todos")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listarTodos() {
+        return Response.ok(usuarioService.listarTodos()).build();
+    }
+
+    // Endpoint Toggle Ativo
+    @PUT
+    @Path("/api/{id}/toggle-ativo")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response toggleAtivo(@PathParam("id") Long id) {
+        Usuario master = getUsuarioEntity();
+        return Response.ok(usuarioService.toggleAtivo(id, master, getIpAddress(), getUserAgent())).build();
+    }
 }
