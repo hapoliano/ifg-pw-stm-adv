@@ -24,16 +24,21 @@ public class PerfilController extends ControllerBase {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance getPerfil() {
+    public Response getPerfil() {
         // Usa o email do contexto de segurança do ControllerBase
         Usuario usuario = perfilService.buscarUsuarioCompletoPorEmail(this.userEmail);
 
-        if(usuario == null){
-            // Se o usuário não for encontrado (erro de sincronização DB/JWT), redireciona.
-            throw new WebApplicationException(Response.seeOther(java.net.URI.create("/login")).build());
+        if (usuario == null) {
+            return Response.seeOther(java.net.URI.create("/login")).build();
         }
-        // Os dados do usuário logado são passados para o template
-        return perfilTemplate.data("usuario", usuario);
+
+        TemplateInstance instance = perfilTemplate.data("usuario", usuario);
+
+        return Response.ok(instance)
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .build();
     }
 
     @POST

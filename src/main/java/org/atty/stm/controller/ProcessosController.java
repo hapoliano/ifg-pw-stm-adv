@@ -27,11 +27,20 @@ public class ProcessosController extends ControllerBase {
     // 1. RENDERIZAÇÃO DA PÁGINA (GET /processos)
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance getProcessosPage() {
+    public Response getProcessosPage() {
         Usuario usuario = getUsuarioEntity();
 
-        return processosTemplate
-                .data("usuario", usuario);
+        if (usuario == null) {
+            return Response.seeOther(java.net.URI.create("/login")).build();
+        }
+
+        TemplateInstance instance = processosTemplate.data("usuario", usuario);
+
+        return Response.ok(instance)
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .build();
     }
 
     // 2. API PARA LISTAR PROCESSOS (GET /processos/api)

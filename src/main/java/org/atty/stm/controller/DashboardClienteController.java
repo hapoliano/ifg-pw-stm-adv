@@ -13,6 +13,7 @@ import org.atty.stm.model.Processo;
 import org.atty.stm.model.Evento;
 import org.atty.stm.service.DashboardClienteService;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -66,17 +67,18 @@ public class DashboardClienteController extends ControllerBase {
     // -------------------------------------------------------------------------
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance getDashboardPage() {
+    public Response getDashboardPage() {
         Usuario usuario = getUsuarioEntity();
+
         if (usuario == null) {
-            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+            return Response.seeOther(URI.create("/login")).build();
         }
 
         DashboardDTO estatisticas = dashboardService.getDashboardCliente(usuario);
         // Lista de Processos Recentes para a tabela/lista
         List<Processo> processosRecentes = dashboardService.getProcessosRecentes(usuario, 5);
 
-        return dashboardTemplate
+        TemplateInstance instance = dashboardTemplate
                 .data("usuario", usuario)
                 .data("totalProcessos", estatisticas.getTotalProcessos())
                 .data("processosAtivos", estatisticas.getProcessosAtivos())
@@ -84,6 +86,13 @@ public class DashboardClienteController extends ControllerBase {
                 .data("mensagensNaoLidas", 0) // HARDCODED (sem service)
                 .data("processosLista", processosRecentes)
                 .data("advogadoInfo", new AdvogadoInfo()); // MOCK (sem service)
+
+        // Adiciona cabeçalhos que impedem o cache
+        return Response.ok(instance)
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .build();
     }
 
     // -------------------------------------------------------------------------

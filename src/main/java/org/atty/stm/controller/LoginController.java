@@ -97,4 +97,23 @@ public class LoginController extends ControllerBase {
                 .cookie(expiredCookie)
                 .build();
     }
+
+    @POST
+    @Path("/logout")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response logoutPost() {
+        // 1. Cria um cookie com o MESMO nome usado no login ("token"), mas com maxAge(0)
+        NewCookie expiredCookie = new NewCookie.Builder("token")
+                .value("")             // Valor vazio
+                .path("/")             // O mesmo path do cookie original
+                .maxAge(0)             // 0 = Expira imediatamente (deleta)
+                .httpOnly(true)
+                .secure(false)         // Mantenha false para dev local (http), true para prod (https)
+                .build();
+
+        // 2. Retorna sucesso e anexa o cookie expirado na resposta
+        return Response.ok(Map.of("success", true, "mensagem", "Logout realizado."))
+                .cookie(expiredCookie) // Isso é o que faz o navegador apagar o login
+                .build();
+    }
 }

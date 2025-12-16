@@ -15,6 +15,7 @@ import org.atty.stm.model.Usuario; // Adicionado para uso no Audit
 import org.atty.stm.service.DashboardMasterService;
 import org.atty.stm.service.AuditoriaService; // <<< NOVO
 
+import java.net.URI;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,27 +87,32 @@ public class DashboardMasterController extends ControllerBase {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance getDashboardPage() {
+    public Response getDashboardPage() {
         Usuario usuario = getUsuarioEntity();
 
         if (usuario == null) {
-            // Se o usuário não estiver logado ou for inválido, retorna Unauthorized
-            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+            return Response.seeOther(URI.create("/login")).build();
         }
 
-        // <<< REGISTRO DE AUDITORIA DE ACESSO >>>
+        // Auditoria
         auditoriaService.registrarAcaoSimples(
                 usuario, "ACCESS_DASHBOARD", "DASHBOARD_MASTER", null,
                 "Acesso à Dashboard Master", getIpAddress(), getUserAgent()
         );
 
-        return dashboardTemplate
-                // Passa o objeto usuário para uso na sidebar/header
+        TemplateInstance instance = dashboardTemplate
                 .data("usuario", usuario)
                 .data("nomeUsuario", this.userName)
                 .data("perfilUsuario", this.userPerfil)
                 .data("estatisticas", dashboardService.getDashboardMaster())
                 .data("processosRecentes", dashboardService.getProcessosRecentes(5))
                 .data("eventosHoje", dashboardService.getProximosCompromissos(5));
+
+        // Retorna com cabeçalhos ANTI-CACHE
+        return Response.ok(instance)
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .build();
     }
 }
