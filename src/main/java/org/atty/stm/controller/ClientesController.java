@@ -35,6 +35,28 @@ public class ClientesController extends org.atty.stm.controller.ControllerBase {
         return Response.ok(template).build();
     }
 
+    // Endpoint API para listar clientes simplificado (Para Selects)
+    @GET
+    @Path("/api/simples")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getClientesSimples() {
+        Usuario usuario = getUsuarioEntity();
+        if (usuario == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        try {
+            // Reutiliza a lógica de listagem existente
+            // Se precisar de algo mais leve no futuro, crie um método específico no Service
+            List<ClienteDTO> lista = clienteService.listarClientes(usuario);
+            return Response.ok(lista).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Collections.singletonMap("error", "Erro ao listar clientes."))
+                    .build();
+        }
+    }
+
     // Endpoint API para listar clientes
     @GET
     @Path("/api")

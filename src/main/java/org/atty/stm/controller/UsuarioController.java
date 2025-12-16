@@ -50,6 +50,22 @@ public class UsuarioController {
     }
 
     // -----------------------------
+    // API: LISTAR APENAS ADVOGADOS (Para Selects)
+    // -----------------------------
+    @GET
+    @Path("/api/advogados")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response listarAdvogados() {
+        // Busca todos e filtra apenas quem é ADVOGADO e está ATIVO
+        List<UsuarioDTO> advogados = usuarioService.listarTodos()
+                .stream()
+                .filter(u -> "ADVOGADO".equalsIgnoreCase(u.getPerfil()) && Boolean.TRUE.equals(u.getAtivo()))
+                .toList();
+
+        return Response.ok(advogados).build();
+    }
+
+    // -----------------------------
     // API: TOGGLE ATIVO (MASTER/ADMIN)
     // -----------------------------
     @PUT
