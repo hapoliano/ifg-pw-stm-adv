@@ -19,27 +19,15 @@
             background-color: var(--light-bg);
         }
 
-        /* INÍCIO DO ESTILO PADRONIZADO DO HEADER */
         .main-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .navbar-brand {
-            font-weight: 600;
-            font-size: 1.5rem;
-        }
+        .navbar-brand { font-weight: 600; font-size: 1.5rem; }
+        .navbar-brand img { height: 45px; filter: brightness(0) invert(1); }
 
-        .navbar-brand img {
-            height: 45px;
-            filter: brightness(0) invert(1);
-        }
-        /* FIM DO ESTILO PADRONIZADO DO HEADER */
-
-        .cadastro-container {
-            max-width: 600px;
-            margin: 3rem auto;
-        }
+        .cadastro-container { max-width: 600px; margin: 3rem auto; }
 
         .card {
             border: none;
@@ -54,17 +42,9 @@
             border-radius: 12px 12px 0 0 !important;
         }
 
-        .card-header h2 {
-            margin: 0;
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
+        .card-header h2 { margin: 0; font-size: 1.8rem; font-weight: 600; }
 
-        .form-label {
-            font-weight: 500;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
+        .form-label { font-weight: 500; color: var(--primary-color); margin-bottom: 0.5rem; }
 
         .form-control, .form-select {
             border: 1px solid #ddd;
@@ -101,15 +81,8 @@
             margin-top: 3rem;
         }
 
-        /* Estilo para esconder campo da OAB */
-        #campoOab {
-            display: none;
-            transition: all 0.5s ease-in-out;
-        }
-
-        #alert-message {
-            display: none;
-        }
+        #campoOab { display: none; transition: all 0.5s ease-in-out; }
+        #alert-message { display: none; }
     </style>
 </head>
 <body>
@@ -125,12 +98,8 @@
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Início</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">Entrar</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="/">Início</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/login">Entrar</a></li>
                 </ul>
             </div>
         </div>
@@ -148,47 +117,34 @@
             <div class="card-body p-4">
                 <div id="alert-message" class="alert" role="alert"></div>
 
-                <form id="formCadastro">
+                <form id="formCadastro" novalidate>
                     <div class="mb-3">
-                        <label for="nome" class="form-label">
-                            <i class="bi bi-person me-1"></i>Nome Completo
-                        </label>
+                        <label for="nome" class="form-label"><i class="bi bi-person me-1"></i>Nome Completo</label>
                         <input type="text" class="form-control" id="nome" placeholder="Digite seu nome completo" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="email" class="form-label">
-                            <i class="bi bi-envelope me-1"></i>E-mail
-                        </label>
+                        <label for="email" class="form-label"><i class="bi bi-envelope me-1"></i>E-mail</label>
                         <input type="email" class="form-control" id="email" placeholder="seu@email.com" required>
                     </div>
                     <div class="mb-3">
-                        <label for="telefone" class="form-label">
-                            <i class="bi bi-phone me-1"></i>Telefone (Opcional)
-                        </label>
+                        <label for="telefone" class="form-label"><i class="bi bi-phone me-1"></i>Telefone (Opcional)</label>
                         <input type="tel" class="form-control" id="telefone" placeholder="(XX) XXXXX-XXXX">
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="senha" class="form-label">
-                                <i class="bi bi-lock me-1"></i>Senha
-                            </label>
+                            <label for="senha" class="form-label"><i class="bi bi-lock me-1"></i>Senha</label>
                             <input type="password" class="form-control" id="senha" placeholder="Crie uma senha segura" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="confirmarSenha" class="form-label">
-                                <i class="bi bi-shield-lock me-1"></i>Confirmar Senha
-                            </label>
+                            <label for="confirmarSenha" class="form-label"><i class="bi bi-shield-lock me-1"></i>Confirmar Senha</label>
                             <input type="password" class="form-control" id="confirmarSenha" placeholder="Repita a senha" required>
                         </div>
                     </div>
 
-
                     <div class="mb-3">
-                        <label for="tipoUsuario" class="form-label">
-                            <i class="bi bi-briefcase me-1"></i>Eu sou
-                        </label>
+                        <label for="tipoUsuario" class="form-label"><i class="bi bi-briefcase me-1"></i>Eu sou</label>
                         <select class="form-select" id="tipoUsuario" required>
                             <option value="" selected disabled>Selecione...</option>
                             <option value="ADVOGADO">Advogado</option>
@@ -197,12 +153,9 @@
                     </div>
 
                     <div class="mb-4" id="campoOab">
-                        <label for="oab" class="form-label">
-                            <i class="bi bi-card-checklist me-1"></i>Número da OAB
-                        </label>
+                        <label for="oab" class="form-label"><i class="bi bi-card-checklist me-1"></i>Número da OAB</label>
                         <input type="text" class="form-control" id="oab" placeholder="Ex: SP123456">
                     </div>
-
 
                     <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-cadastrar">
@@ -242,19 +195,14 @@
 <script>
     const alertDiv = document.getElementById('alert-message');
 
-    // Função padronizada para exibir alertas
     function updateAlert(type, message) {
         alertDiv.textContent = message;
         alertDiv.classList.remove('alert-success', 'alert-danger');
-        if (type === 'success') {
-            alertDiv.classList.add('alert-success');
-        } else if (type === 'error') {
-            alertDiv.classList.add('alert-danger');
-        }
+        if (type === 'success') alertDiv.classList.add('alert-success');
+        else if (type === 'error') alertDiv.classList.add('alert-danger');
         alertDiv.style.display = 'block';
     }
 
-    // Lógica para mostrar/esconder o campo OAB
     const tipoUsuarioSelect = document.getElementById('tipoUsuario');
     const campoOab = document.getElementById('campoOab');
     const inputOab = document.getElementById('oab');
@@ -266,14 +214,21 @@
         } else {
             campoOab.style.display = 'none';
             inputOab.required = false;
+            inputOab.value = ''; // Limpa se mudar para cliente
         }
     });
 
-
-    // Lógica de submit corrigida
     document.getElementById('formCadastro').addEventListener('submit', async function (e) {
         e.preventDefault();
         alertDiv.style.display = 'none';
+
+        // Validação HTML5 (campos vazios)
+        if (!this.checkValidity()) {
+            e.stopPropagation();
+            this.classList.add('was-validated');
+            updateAlert('error', 'Por favor, preencha todos os campos obrigatórios.');
+            return;
+        }
 
         const nome = document.getElementById('nome').value;
         const email = document.getElementById('email').value;
@@ -293,31 +248,38 @@
             return;
         }
 
-        const dados = { nome, email, senha, tipoUsuario, telefone, oab };
+        // CRIAÇÃO DO OBJETO JSON CORRIGIDA
+        const dados = {
+            nome: nome,
+            email: email,
+            senha: senha,
+            confirmarSenha: confirmarSenha, // IMPORTANTE: Este campo deve ser enviado
+            tipoUsuario: tipoUsuario,
+            telefone: telefone,
+            oab: oab
+        };
+
+        console.log("Enviando dados:", dados); // Debug para F12
 
         try {
             const response = await fetch('/cadastro/cadastrar', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dados)
             });
 
             const result = await response.json();
 
             if (response.ok && result.success) {
-                // Sucesso
                 updateAlert('success', result.mensagem);
-                setTimeout(() => window.location.href = result.redirectUrl, 500);
+                setTimeout(() => window.location.href = result.redirectUrl, 1500);
             } else {
-                // Falha
-                console.error('Erro no cadastro:', result.mensagem);
-                updateAlert('error', "Erro no cadastro: " + (result.mensagem || "Verifique os dados e tente novamente."));
+                console.error('Erro backend:', result);
+                updateAlert('error', "Erro: " + (result.mensagem || "Verifique os dados."));
             }
         } catch (error) {
             console.error('Erro de conexão:', error);
-            updateAlert('error', "Erro de conexão com o servidor. Tente novamente mais tarde.");
+            updateAlert('error', "Erro de conexão com o servidor.");
         }
     });
 </script>
