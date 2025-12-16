@@ -508,7 +508,10 @@
             titulo: document.getElementById('processoTitulo').value,
             descricao: document.getElementById('processoDescricao').value,
             status: document.getElementById('processoStatus').value,
-            // TODO: Incluir clienteId, advogadoId, e outros campos
+
+            // ADICIONE ESTES CAMPOS:
+            clienteId: document.getElementById('processoCliente').value || null,
+            advogadoResponsavelId: document.getElementById('processoAdvogado').value || null
         };
 
         const method = processoEditandoId ? 'PUT' : 'POST';
@@ -523,12 +526,19 @@
 
             if (response.ok) {
                 alert(`Processo ${processoEditandoId ? 'atualizado' : 'criado'} com sucesso!`);
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalProcesso'));
-                modal.hide();
+
+                // Fecha o modal corretamente
+                const modalElement = document.getElementById('modalProcesso');
+                const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+
                 carregarProcessos(); // Recarrega a lista
             } else {
                 const errorData = await response.json();
-                alert('Erro ao salvar processo: ' + (errorData.error || response.statusText));
+                // Exibe a mensagem de erro vinda do backend ou um texto padrão
+                alert('Erro ao salvar processo: ' + (errorData.error || errorData.message || response.statusText));
             }
         } catch (error) {
             console.error('Erro de comunicação:', error);
