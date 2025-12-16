@@ -22,14 +22,18 @@ public class ClienteService {
     @Inject
     AuditoriaService auditoriaService;
 
-    // --- Listagem de clientes filtrada por perfil ---
+    @Transactional
     public List<ClienteDTO> listarClientes(Usuario usuario) {
         List<Cliente> clientes;
 
+        if (usuario == null) return List.of();
+
         if ("MASTER".equals(usuario.perfil)) {
-            clientes = clienteRepository.listAll();
+            // Traz tudo com fetch
+            clientes = clienteRepository.listarTodosComAdvogado();
         } else if ("ADVOGADO".equals(usuario.perfil)) {
-            clientes = clienteRepository.findByAdvogadoId(usuario.id);
+            // Traz do advogado com fetch
+            clientes = clienteRepository.listarPorAdvogadoComFetch(usuario.id);
         } else {
             Cliente cliente = clienteRepository.findByUsuarioId(usuario.id);
             clientes = cliente != null ? List.of(cliente) : List.of();
@@ -40,11 +44,13 @@ public class ClienteService {
                 .collect(Collectors.toList());
     }
 
-    // --- Buscar cliente por ID com verificação de permissão ---
+    @Transactional
     public ClienteDTO buscarClientePorId(Long id, Usuario usuario) {
-        Cliente cliente = clienteRepository.findById(id);
+        Cliente cliente = clienteRepository.findByIdComFetch(id);
+
         if (cliente == null) return null;
-        if (!temPermissao(usuario, cliente)) return null;
+        if (usuario != null && !temPermissao(usuario, cliente)) return null;
+
         return toDTO(cliente);
     }
 
@@ -53,7 +59,6 @@ public class ClienteService {
     public ClienteDTO criarCliente(ClienteDTO dto, Usuario usuarioCriador, String ip, String ua) {
         validarCamposObrigatorios(dto);
 
-        // Verificar se email já existe
         Cliente existente = clienteRepository.findByEmail(dto.getEmail());
         if (existente != null) throw new RuntimeException("Email já cadastrado");
 
@@ -70,7 +75,7 @@ public class ClienteService {
         cliente.dataCriacao = LocalDateTime.now();
         cliente.dataAtualizacao = LocalDateTime.now();
 
-        if ("ADVOGADO".equals(usuarioCriador.perfil)) {
+        if (usuarioCriador != null && "ADVOGADO".equals(usuarioCriador.perfil)) {
             cliente.advogadoResponsavel = usuarioCriador;
         }
 
@@ -86,11 +91,10 @@ public class ClienteService {
     public ClienteDTO atualizarCliente(Long id, ClienteDTO dto, Usuario usuario) {
         Cliente cliente = clienteRepository.findById(id);
         if (cliente == null) throw new RuntimeException("Cliente não encontrado");
-        if (!temPermissao(usuario, cliente)) throw new RuntimeException("Sem permissão para atualizar este cliente");
+        if (usuario != null && !temPermissao(usuario, cliente)) throw new RuntimeException("Sem permissão para atualizar este cliente");
 
         validarCamposObrigatorios(dto);
 
-        // Verificar se email já existe (excluindo o próprio cliente)
         Cliente existente = clienteRepository.findByEmail(dto.getEmail());
         if (existente != null && !existente.id.equals(cliente.id)) {
             throw new RuntimeException("Email já cadastrado");
@@ -116,7 +120,7 @@ public class ClienteService {
     public boolean deletarCliente(Long id, Usuario usuario, String ip, String ua) {
         Cliente cliente = clienteRepository.findById(id);
         if (cliente == null) return false;
-        if (!temPermissao(usuario, cliente)) throw new RuntimeException("Sem permissão para deletar este cliente");
+        if (usuario != null && !temPermissao(usuario, cliente)) throw new RuntimeException("Sem permissão para deletar este cliente");
 
         long processosCount = Processo.count("cliente.id = ?1", id);
         if (processosCount > 0) throw new RuntimeException("Não é possível excluir cliente com processos vinculados");
@@ -129,17 +133,13 @@ public class ClienteService {
     }
 
     // --- Métodos auxiliares ---
-
     private boolean temPermissao(Usuario usuario, Cliente cliente) {
+        if (usuario == null) return false;
         switch (usuario.perfil) {
-            case "MASTER":
-                return true;
-            case "ADVOGADO":
-                return cliente.advogadoResponsavel != null && cliente.advogadoResponsavel.id.equals(usuario.id);
-            case "CLIENTE":
-                return cliente.usuario != null && cliente.usuario.id.equals(usuario.id);
-            default:
-                return false;
+            case "MASTER": return true;
+            case "ADVOGADO": return cliente.advogadoResponsavel != null && cliente.advogadoResponsavel.id.equals(usuario.id);
+            case "CLIENTE": return cliente.usuario != null && cliente.usuario.id.equals(usuario.id);
+            default: return false;
         }
     }
 

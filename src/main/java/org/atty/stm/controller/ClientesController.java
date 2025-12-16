@@ -10,25 +10,28 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.atty.stm.model.dto.ClienteDTO;
+import org.atty.stm.model.Usuario;
 import org.atty.stm.service.ClienteService;
 import java.util.List;
+import java.util.Collections;
 
 @Path("/clientes")
-@RolesAllowed({"MASTER", "ADVOGADO", "CLIENTE"}) // Cliente também pode ver SEUS dados de cliente
+@RolesAllowed({"MASTER", "ADVOGADO", "CLIENTE"})
 @RequestScoped
-public class ClientesController extends org.atty.stm.controller.ControllerBase { // <-- Estende ControllerBase
+public class ClientesController extends org.atty.stm.controller.ControllerBase {
 
     @Inject
     @Location("clientes.html")
     Template clientes;
+
     @Inject
-    ClienteService clienteService; // Deve ser criado
+    ClienteService clienteService;
 
     @GET
     @Produces(MediaType.TEXT_HTML)
     public Response getClientesPage() {
-        TemplateInstance template = clientes
-                .data("usuario", getUsuarioEntity()); // Passa a entidade de usuário completa
+        Usuario usuario = getUsuarioEntity();
+        TemplateInstance template = clientes.data("usuario", usuario);
         return Response.ok(template).build();
     }
 
@@ -37,9 +40,20 @@ public class ClientesController extends org.atty.stm.controller.ControllerBase {
     @Path("/api")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllClientes() {
-        // Lógica de Negócio: O Service deve filtrar clientes por advogado logado se não for MASTER
-        List<ClienteDTO> lista = clienteService.listarClientes(getUsuarioEntity()); // CORRIGIDO: Agora chama o service real
-        return Response.ok(lista).build();
+        Usuario usuario = getUsuarioEntity();
+        if (usuario == null) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        try {
+            List<ClienteDTO> lista = clienteService.listarClientes(usuario);
+            return Response.ok(lista).build();
+        } catch (Exception e) {
+            e.printStackTrace(); // Ajuda a ver o erro no terminal
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Collections.singletonMap("error", "Erro ao listar clientes: " + e.getMessage()))
+                    .build();
+        }
     }
 
     // Endpoint API para buscar cliente por ID
@@ -47,7 +61,10 @@ public class ClientesController extends org.atty.stm.controller.ControllerBase {
     @Path("/api/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getClienteById(@PathParam("id") Long id) {
-        ClienteDTO cliente = clienteService.buscarClientePorId(id, getUsuarioEntity());
+        Usuario usuario = getUsuarioEntity();
+        if (usuario == null) return Response.status(Response.Status.UNAUTHORIZED).build();
+
+        ClienteDTO cliente = clienteService.buscarClientePorId(id, usuario);
         if (cliente == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -57,46 +74,55 @@ public class ClientesController extends org.atty.stm.controller.ControllerBase {
     // Endpoint API para criar cliente
     @POST
     @Path("/api")
-    @RolesAllowed({"MASTER", "ADVOGADO"}) // Somente Master/Advogado podem criar
+    @RolesAllowed({"MASTER", "ADVOGADO"})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response criarCliente(ClienteDTO dto, @HeaderParam("X-Forwarded-For") String ip, @HeaderParam("User-Agent") String ua) {
+        Usuario usuario = getUsuarioEntity();
+        if (usuario == null) return Response.status(Response.Status.UNAUTHORIZED).build();
+
         try {
-            ClienteDTO novoCliente = clienteService.criarCliente(dto, getUsuarioEntity(), ip, ua);
+            ClienteDTO novoCliente = clienteService.criarCliente(dto, usuario, ip, ua);
             return Response.status(Response.Status.CREATED).entity(novoCliente).build();
         } catch (RuntimeException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(java.util.Collections.singletonMap("error", e.getMessage())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(Collections.singletonMap("error", e.getMessage())).build();
         }
     }
 
     // Endpoint API para atualizar cliente
     @PUT
     @Path("/api/{id}")
-    @RolesAllowed({"MASTER", "ADVOGADO"}) // Somente Master/Advogado podem atualizar
+    @RolesAllowed({"MASTER", "ADVOGADO"})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response atualizarCliente(@PathParam("id") Long id, ClienteDTO dto) {
+        Usuario usuario = getUsuarioEntity();
+        if (usuario == null) return Response.status(Response.Status.UNAUTHORIZED).build();
+
         try {
-            ClienteDTO clienteAtualizado = clienteService.atualizarCliente(id, dto, getUsuarioEntity());
+            ClienteDTO clienteAtualizado = clienteService.atualizarCliente(id, dto, usuario);
             return Response.ok(clienteAtualizado).build();
         } catch (RuntimeException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(java.util.Collections.singletonMap("error", e.getMessage())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(Collections.singletonMap("error", e.getMessage())).build();
         }
     }
 
     // Endpoint API para deletar cliente
     @DELETE
     @Path("/api/{id}")
-    @RolesAllowed({"MASTER", "ADVOGADO"}) // Somente Master/Advogado podem deletar
+    @RolesAllowed({"MASTER", "ADVOGADO"})
     public Response deletarCliente(@PathParam("id") Long id, @HeaderParam("X-Forwarded-For") String ip, @HeaderParam("User-Agent") String ua) {
+        Usuario usuario = getUsuarioEntity();
+        if (usuario == null) return Response.status(Response.Status.UNAUTHORIZED).build();
+
         try {
-            if (clienteService.deletarCliente(id, getUsuarioEntity(), ip, ua)) {
+            if (clienteService.deletarCliente(id, usuario, ip, ua)) {
                 return Response.noContent().build();
             } else {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
         } catch (RuntimeException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(java.util.Collections.singletonMap("error", e.getMessage())).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(Collections.singletonMap("error", e.getMessage())).build();
         }
     }
 }

@@ -439,30 +439,35 @@
             const statusClass = status === 'ATIVO' ? 'bg-success' : 'bg-secondary';
             const id = cliente.id;
 
+            // Verifica se tem advogado para montar o HTML condicional
+            const advogadoHtml = cliente.advogadoResponsavel ?
+                '<small class="text-muted ps-3">Adv: ' + cliente.advogadoResponsavel + '</small>' : '';
+
+            // CORREÇÃO: Usando concatenação (+) para evitar conflito com o Qute
             html += `
                 <tr>
                     <td>
-                        <p class="text-sm font-weight-bold mb-0 ps-3">${nome}</p>
-                        ${cliente.advogadoResponsavel ? `<small class="text-muted ps-3">Adv: ${cliente.advogadoResponsavel}</small>` : ''}
-        </td>
-            <td><p class="text-sm mb-0">${email}</p></td>
-            <td><p class="text-sm mb-0">${telefone}</p></td>
-            <td>
-                        <span class="badge ${statusClass}">
-                            ${status}
+                        <p class="text-sm font-weight-bold mb-0 ps-3">` + nome + `</p>
+                        ` + advogadoHtml + `
+                    </td>
+                    <td><p class="text-sm mb-0">` + email + `</p></td>
+                    <td><p class="text-sm mb-0">` + telefone + `</p></td>
+                    <td>
+                        <span class="badge ` + statusClass + `">
+                            ` + status + `
                         </span>
-            </td>
-            <td>
-                <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-primary btn-sm" onclick="editarCliente(${id})" title="Editar">
-                        <i class="bi bi-pencil"></i>
-                    </button>
-                    <button class="btn btn-outline-danger btn-sm" onclick="excluirCliente(${id})" title="Excluir">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary btn-sm" onclick="editarCliente(` + id + `)" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="excluirCliente(` + id + `)" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
             `;
         });
 
@@ -477,16 +482,22 @@
         document.getElementById('clienteId').value = '';
     }
 
-    // Carregar dados do cliente para edição
+    // --- Carregar dados do cliente para edição (CORRIGIDO) ---
     async function editarCliente(id) {
         try {
-            const response = await fetchAutenticado(`/clientes/api/${id}`);
+            // CORREÇÃO: Use concatenação (+) para evitar que o Qute estrague a URL
+            // Antes estava: `/clientes/api/${id}` -> O Qute tentava processar o ${id}
+            const url = '/clientes/api/' + id;
+
+            const response = await fetchAutenticado(url);
+
             if (response.status === 401) {
                 window.location.href = '/login';
                 return;
             }
 
             if (!response.ok) {
+                console.error("Erro na requisição: ", response.status); // Veja isso no F12 se der erro
                 throw new Error('Erro ao carregar cliente: ' + response.status);
             }
 
@@ -508,7 +519,7 @@
             modal.show();
         } catch (error) {
             console.error('Erro ao carregar cliente:', error);
-            alert('Erro ao carregar dados do cliente');
+            alert('Erro ao carregar dados do cliente. Verifique o console (F12).');
         }
     }
 
@@ -524,15 +535,20 @@
             estado: document.getElementById('clienteEstado').value.trim(),
             cep: document.getElementById('clienteCep').value.trim()
         };
+
         if (!cliente.nome || !cliente.email) {
             alert('Por favor, preencha os campos obrigatórios (Nome e Email)');
             return;
         }
 
         try {
+            // CORREÇÃO: Usar concatenação (+) em vez de template literal `${}`
+            // O Qute não entende ${clienteEditando} pois é uma variável JavaScript
             const url = clienteEditando ?
-                `/clientes/api/${clienteEditando}` : '/clientes/api';
+                '/clientes/api/' + clienteEditando : '/clientes/api';
+
             const method = clienteEditando ? 'PUT' : 'POST';
+
             const response = await fetchAutenticado(url, {
                 method: method,
                 headers: {
@@ -557,7 +573,7 @@
             }
         } catch (error) {
             console.error('Erro ao salvar cliente:', error);
-            alert('Erro ao salvar cliente');
+            alert('Erro ao salvar cliente. Verifique o console.');
         }
     }
 
@@ -568,9 +584,13 @@
         }
 
         try {
-            const response = await fetchAutenticado(`/clientes/api/${id}`, {
+            // CORREÇÃO: Use concatenação aqui também
+            const url = '/clientes/api/' + id;
+
+            const response = await fetchAutenticado(url, {
                 method: 'DELETE'
             });
+
             if (response.status === 401) {
                 window.location.href = '/login';
                 return;
@@ -580,7 +600,6 @@
                 carregarClientes();
                 alert('Cliente excluído com sucesso!');
             } else {
-                // Tenta pegar a mensagem de erro do backend (se houver processos vinculados)
                 const errorData = await response.json();
                 alert('Erro ao excluir cliente: ' + (errorData.error || response.statusText));
             }

@@ -1,42 +1,48 @@
-    package org.atty.stm.repository;
+package org.atty.stm.repository;
 
-    import jakarta.enterprise.context.ApplicationScoped;
-    import org.atty.stm.model.Cliente;
-    import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import jakarta.enterprise.context.ApplicationScoped;
+import org.atty.stm.model.Cliente;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
-    import java.util.List;
+import java.util.List;
 
-    @ApplicationScoped
-    public class ClienteRepository implements PanacheRepository<Cliente> {
+@ApplicationScoped
+public class ClienteRepository implements PanacheRepository<Cliente> {
 
-        // Total de clientes ativos
-        public long countAllAtivos() {
-            return count("status = 'ATIVO'");
-        }
-
-        // Total de clientes de um advogado específico
-        public long countByAdvogado(Long advogadoId) {
-            if (advogadoId == null) return 0;
-            return count("advogadoResponsavel.id = ?1", advogadoId);
-        }
-
-        // Lista todos os clientes vinculados a um advogado específico.
-        public List<Cliente> findByAdvogadoId(Long advogadoId) {
-            if (advogadoId == null) return List.of();
-            return list("advogadoResponsavel.id = ?1", advogadoId);
-        }
-
-        //NOVO: Busca um cliente pelo ID do seu usuário vinculado.
-
-        public Cliente findByUsuarioId(Long usuarioId) {
-            if (usuarioId == null) return null;
-            // Assume que existe um campo 'usuario' no modelo Cliente que referencia a tabela Usuario
-            return find("usuario.id = ?1", usuarioId).firstResult();
-        }
-
-        // Busca um cliente pelo email (case insensitive)
-        public Cliente findByEmail(String email) {
-            if (email == null) return null;
-            return find("LOWER(email) = ?1", email.toLowerCase().trim()).firstResult();
-        }
+    // --- MÉTODOS EXISTENTES ---
+    public long countAllAtivos() {
+        return count("status = 'ATIVO'");
     }
+
+    public long countByAdvogado(Long advogadoId) {
+        if (advogadoId == null) return 0;
+        return count("advogadoResponsavel.id = ?1", advogadoId);
+    }
+
+    public Cliente findByUsuarioId(Long usuarioId) {
+        if (usuarioId == null) return null;
+        return find("usuario.id = ?1", usuarioId).firstResult();
+    }
+
+    public Cliente findByEmail(String email) {
+        if (email == null) return null;
+        return find("LOWER(email) = ?1", email.toLowerCase().trim()).firstResult();
+    }
+
+    // --- NOVOS MÉTODOS COM JOIN FETCH (SOLUÇÃO DO BUG) ---
+
+    // Traz TODOS os clientes e já carrega os dados do Advogado junto
+    public List<Cliente> listarTodosComAdvogado() {
+        return list("SELECT c FROM Cliente c LEFT JOIN FETCH c.advogadoResponsavel ORDER BY c.nome");
+    }
+
+    // Traz clientes de um advogado específico, também carregando os dados
+    public List<Cliente> listarPorAdvogadoComFetch(Long advogadoId) {
+        return list("SELECT c FROM Cliente c LEFT JOIN FETCH c.advogadoResponsavel WHERE c.advogadoResponsavel.id = ?1 ORDER BY c.nome", advogadoId);
+    }
+
+    // Busca um único cliente trazendo o advogado junto para evitar erro no toDTO
+    public Cliente findByIdComFetch(Long id) {
+        return find("SELECT c FROM Cliente c LEFT JOIN FETCH c.advogadoResponsavel WHERE c.id = ?1", id).firstResult();
+    }
+}
