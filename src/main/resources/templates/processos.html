@@ -478,26 +478,45 @@
     }
 
     async function editarProcesso(id) {
-        // Chamada à API para carregar dados de edição
         try {
-            const response = await fetchAutenticado(`/processos/api/${id}`);
+            // 1. Carrega os selects PRIMEIRO e aguarda o término (await)
+            // Se não aguardar, tentará setar o valor em um select vazio
+            await carregarSelects();
+
+            // 2. Busca os dados do processo no backend
+            const response = await fetchAutenticado('/processos/api/' + id);
+
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+
             if (!response.ok) throw new Error('Falha ao carregar processo');
+
             const processo = await response.json();
 
             processoEditandoId = id;
             document.getElementById('modalProcessoLabel').textContent = 'Editar Processo';
 
-            // Preenchimento dos campos do modal
+            // 3. Preenchimento dos campos do modal
             document.getElementById('processoNumero').value = processo.numeroProcesso || '';
             document.getElementById('processoTitulo').value = processo.titulo || '';
             document.getElementById('processoDescricao').value = processo.descricao || '';
             document.getElementById('processoStatus').value = processo.status;
-            // TODO: Preencher outros campos DTO (clienteId, advogadoId, etc.)
+
+            // Preenchimento dos Selects (Cliente e Advogado)
+            // Usa o ID vindo do DTO (clienteId e advogadoResponsavelId)
+            if (processo.clienteId) {
+                document.getElementById('processoCliente').value = processo.clienteId;
+            }
+
+            if (processo.advogadoResponsavelId) {
+                document.getElementById('processoAdvogado').value = processo.advogadoResponsavelId;
+            }
 
         } catch (error) {
             console.error(error);
             alert('Erro ao carregar dados do processo para edição.');
-            // Fechar modal ou impedir a abertura se falhar
         }
     }
 
@@ -508,14 +527,13 @@
             titulo: document.getElementById('processoTitulo').value,
             descricao: document.getElementById('processoDescricao').value,
             status: document.getElementById('processoStatus').value,
-
-            // ADICIONE ESTES CAMPOS:
             clienteId: document.getElementById('processoCliente').value || null,
             advogadoResponsavelId: document.getElementById('processoAdvogado').value || null
         };
 
         const method = processoEditandoId ? 'PUT' : 'POST';
-        const url = processoEditandoId ? `/processos/api/${processoEditandoId}` : '/processos/api';
+
+        const url = processoEditandoId ? '/processos/api/' + processoEditandoId : '/processos/api';
 
         try {
             const response = await fetchAutenticado(url, {
@@ -525,20 +543,15 @@
             });
 
             if (response.ok) {
-                alert(`Processo ${processoEditandoId ? 'atualizado' : 'criado'} com sucesso!`);
+                alert('Processo ' + (processoEditandoId ? 'atualizado' : 'criado') + ' com sucesso!');
 
-                // Fecha o modal corretamente
-                const modalElement = document.getElementById('modalProcesso');
-                const modalInstance = bootstrap.Modal.getInstance(modalElement);
-                if (modalInstance) {
-                    modalInstance.hide();
-                }
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalProcesso'));
+                if (modal) modal.hide();
 
-                carregarProcessos(); // Recarrega a lista
+                carregarProcessos();
             } else {
                 const errorData = await response.json();
-                // Exibe a mensagem de erro vinda do backend ou um texto padrão
-                alert('Erro ao salvar processo: ' + (errorData.error || errorData.message || response.statusText));
+                alert('Erro ao salvar processo: ' + (errorData.error || response.statusText));
             }
         } catch (error) {
             console.error('Erro de comunicação:', error);
