@@ -20,7 +20,7 @@ services:
       - stm-network
 
   openvidu:
-    image: openvidu/openvidu-server:2.30.0
+    image: openvidu/openvidu-server:2.28.0
     container_name: openvidu_server
     restart: always
     ports:
