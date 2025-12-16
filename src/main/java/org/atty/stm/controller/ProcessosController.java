@@ -4,7 +4,7 @@ import io.quarkus.qute.Location;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.context.RequestScoped; // Importante para o bug de sessão
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -31,9 +31,7 @@ public class ProcessosController extends ControllerBase {
     @Produces(MediaType.TEXT_HTML)
     public TemplateInstance getProcessosPage() {
         Usuario usuario = getUsuarioEntity();
-
-        return processosTemplate
-                .data("usuario", usuario);
+        return processosTemplate.data("usuario", usuario);
     }
 
     // 2. API PARA LISTAR PROCESSOS (GET /processos/api)
@@ -45,12 +43,26 @@ public class ProcessosController extends ControllerBase {
         if (usuario == null) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-
         List<ProcessoDTO> lista = processoService.listarTodos(usuario);
         return Response.ok(lista).build();
     }
 
-    // 3. API PARA CRIAR PROCESSO (POST /processos/api)
+    // 3. API PARA BUSCAR UM ÚNICO PROCESSO (Faltava este endpoint!)
+    // O botão de Editar chama esse método para preencher o formulário
+    @GET
+    @Path("/api/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getProcessoById(@PathParam("id") Long id) {
+        Usuario usuario = getUsuarioEntity();
+        try {
+            ProcessoDTO dto = processoService.buscarPorId(id, usuario);
+            return Response.ok(dto).build();
+        } catch (Exception e) {
+            return handleServiceException(e);
+        }
+    }
+
+    // 4. API PARA CRIAR PROCESSO (POST /processos/api)
     @POST
     @Path("/api")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -66,7 +78,7 @@ public class ProcessosController extends ControllerBase {
         }
     }
 
-    // 4. API PARA EDITAR PROCESSO (PUT /processos/api/{id})
+    // 5. API PARA EDITAR PROCESSO (PUT /processos/api/{id})
     @PUT
     @Path("/api/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
