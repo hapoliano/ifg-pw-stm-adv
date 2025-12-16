@@ -11,6 +11,8 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.net.URI;
 import java.util.List;
 
 @Path("/auditoria")
@@ -27,18 +29,25 @@ public class AuditoriaController extends org.atty.stm.controller.ControllerBase 
     // RENDERIZAÇÃO DA PÁGINA (GET /auditoria)
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance get() {
+    public Response getPage() {
         Usuario usuario = getUsuarioEntity();
+
         if (usuario == null) {
-            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+            return Response.seeOther(URI.create("/login")).build();
         }
 
-        // Passa os logs para o template Qute renderizar a tabela na primeira carga
-        List<AuditoriaDTO> logs = auditoriaService.listarLogsRecentes(100);
+        // CORREÇÃO: O nome correto do método no Service é listarLogsRecentes
+        var logs = auditoriaService.listarLogsRecentes(50);
 
-        return auditoria
+        TemplateInstance instance = auditoria
                 .data("usuario", usuario)
                 .data("logs", logs);
+
+        return Response.ok(instance)
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .build();
     }
 
     // ENDPOINT JSON para AJAX (GET /auditoria/logs)

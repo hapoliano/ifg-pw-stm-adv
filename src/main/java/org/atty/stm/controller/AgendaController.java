@@ -28,16 +28,24 @@ public class AgendaController extends org.atty.stm.controller.ControllerBase {
 
     // ROTA HTML (Para carregar a página)
     @GET
-    public TemplateInstance getAgendaPage() {
+    public Response getAgendaPage() {
         Usuario usuarioLogado = getUsuarioEntity();
 
-        List<EventoDTO> eventos = usuarioLogado != null
-                ? eventoService.listarEventosUsuario(usuarioLogado.id)
-                : List.of();
+        if (usuarioLogado == null) {
+            return Response.seeOther(java.net.URI.create("/login")).build();
+        }
 
-        return agenda
+        List<EventoDTO> eventos = eventoService.listarEventosUsuario(usuarioLogado.id);
+
+        TemplateInstance instance = agenda
                 .data("eventos", eventos)
                 .data("usuario", usuarioLogado);
+
+        return Response.ok(instance)
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .build();
     }
 
     // ENDPOINT PARA SALVAR/CRIAR/ATUALIZAR EVENTO (POST)

@@ -25,9 +25,15 @@ public class ClientesController extends org.atty.stm.controller.ControllerBase {
     @GET
     @Produces(MediaType.TEXT_HTML)
     public Response getClientesPage() {
-        TemplateInstance template = clientes
-                .data("usuario", getUsuarioEntity()); // Passa a entidade de usuário completa
-        return Response.ok(template).build();
+        // Renderiza o template com os dados do usuário
+        TemplateInstance template = clientes.data("usuario", getUsuarioEntity());
+
+        // Retorna com cabeçalhos que impedem o cache
+        return Response.ok(template)
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .build();
     }
 
     // Endpoint API para listar clientes

@@ -13,37 +13,47 @@ import org.atty.stm.model.dto.StatusUpdateDTO; // Importação correta
 import org.atty.stm.model.Usuario;
 import org.atty.stm.service.ProcessoService;
 
-@Path("/processodetalhe")
+import java.net.URI;
+
+@Path("/processos/{id}")
 @RolesAllowed({"MASTER", "ADVOGADO", "CLIENTE"})
 public class ProcessoDetalheController extends ControllerBase {
 
     @Inject
     @Location("processodetalhe.html")
-    Template processodetalheTemplate;
+    Template processoDetalhe;
 
     @Inject
     ProcessoService processoService;
 
     // 1. RENDERIZAÇÃO DA PÁGINA DE DETALHE (GET /processodetalhe/{id})
     @GET
-    @Path("/{id}")
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance getProcessoDetalhe(@PathParam("id") Long id) {
+    public Response getDetalhePage(@PathParam("id") Long id) {
         Usuario usuario = getUsuarioEntity();
 
-        try {
-            ProcessoDTO processo = processoService.buscarPorId(id, usuario);
-            return processodetalheTemplate
-                    .data("processo", processo)
-                    .data("usuario", usuario);
-
-        } catch (Exception e) {
-            // Se não encontrar ou acesso negado, renderiza uma página de erro (ou redireciona)
-            // Aqui, apenas logamos e retornamos um template básico de erro para simplificar.
-            e.printStackTrace();
-            throw new WebApplicationException("Erro ao carregar detalhe do processo: " + e.getMessage(),
-                    Response.Status.NOT_FOUND);
+        if (usuario == null) {
+            return Response.seeOther(URI.create("/login")).build();
         }
+
+        // Busca o processo garantindo que o usuário tem permissão para vê-lo
+        ProcessoDTO processo = processoService.buscarPorId(id, usuario);
+
+        if (processo == null) {
+            // Se não achou ou não tem permissão, volta para a lista
+            return Response.seeOther(URI.create("/processos")).build();
+        }
+
+        TemplateInstance instance = processoDetalhe
+                .data("usuario", usuario)
+                .data("processo", processo);
+
+        // Bloqueia o cache
+        return Response.ok(instance)
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .build();
     }
 
     // 2. API PARA MUDAR STATUS (PUT /processodetalhe/{id}/status)

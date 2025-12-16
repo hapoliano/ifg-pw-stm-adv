@@ -13,6 +13,7 @@ import org.atty.stm.service.AdvogadoVerificacaoService;
 import org.atty.stm.model.Usuario;
 import org.atty.stm.model.dto.UsuarioDTO;
 
+import java.net.URI;
 import java.util.Map;
 
 @Path("/gestao-usuarios")
@@ -20,8 +21,8 @@ import java.util.Map;
 public class GestaoUsuariosController extends ControllerBase {
 
     @Inject
-    @Location("gestaoUsuarios.html")
-    Template gestaoUsuariosTemplate;
+    @Location("gestaoUsuarios.html") //
+    Template gestaoUsuarios;
 
     @Inject
     UsuarioService usuarioService;
@@ -31,11 +32,22 @@ public class GestaoUsuariosController extends ControllerBase {
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance getGestaoUsuariosPage() {
-        Usuario usuario = getUsuarioEntity(); // Recupera usuário logado (do ControllerBase)
+    public Response getPage() {
+        Usuario usuario = getUsuarioEntity();
 
-        // 3. Renderiza o template enviando o objeto usuario
-        return gestaoUsuariosTemplate.data("usuario", usuario);
+        if (usuario == null) {
+            return Response.seeOther(URI.create("/login")).build();
+        }
+
+        // Prepara o template
+        TemplateInstance instance = gestaoUsuarios.data("usuario", usuario);
+
+        // Retorna com NO-CACHE
+        return Response.ok(instance)
+                .header("Cache-Control", "no-cache, no-store, must-revalidate")
+                .header("Pragma", "no-cache")
+                .header("Expires", "0")
+                .build();
     }
 
     // ... (Métodos de renderização, /api/todos, /api/advogados/pendentes, /api/{id}/toggle-ativo, /api/estatisticas - SEM MUDANÇAS)
