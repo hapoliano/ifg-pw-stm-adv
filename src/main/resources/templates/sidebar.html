@@ -19,7 +19,7 @@
         </a>
     {/if}
 
-    {#if usuario.perfil == 'MASTER'}
+    {#if usuario.perfil == 'MASTER' or usuario.perfil == 'ADVOGADO'}
     <a href="/clientes" class="nav-link">
         <i class="bi bi-person-badge-fill"></i> Clientes
     </a>
