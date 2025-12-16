@@ -14,9 +14,13 @@
             --light-bg: #ecf0f1;
         }
 
+        /* CORREÇÃO 1: Sticky Footer (Rodapé fixo ao fundo quando há pouco conteúdo) */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--light-bg);
+            display: flex;             /* Habilita Flexbox */
+            flex-direction: column;    /* Organiza itens em coluna */
+            min-height: 100vh;        /* Garante altura mínima de 100% da tela */
         }
 
         /* INÍCIO DO ESTILO PADRONIZADO DO HEADER */
@@ -38,7 +42,8 @@
 
         .login-container {
             max-width: 500px;
-            margin: 3rem auto;
+            /* Margem ajustada para dar espaço sem usar <br> */
+            margin: 4rem auto;
         }
 
         .card {
@@ -140,7 +145,8 @@
             background-color: var(--primary-color);
             color: rgba(255, 255, 255, 0.8);
             padding: 2rem 0;
-            margin-top: 3rem;
+            /* CORREÇÃO 2: Empurra o footer para baixo automaticamente */
+            margin-top: auto;
         }
 
         .main-footer a {
@@ -180,8 +186,6 @@
     </nav>
 </header>
 
-<br><br><br>
-
 <main class="container">
     <div class="login-container">
         <div class="card">
@@ -214,8 +218,6 @@
         </div>
     </div>
 </main>
-
-<br><br>
 
 <footer class="main-footer">
     <div class="container">
