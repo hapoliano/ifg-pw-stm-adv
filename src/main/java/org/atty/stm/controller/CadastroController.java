@@ -7,7 +7,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.atty.stm.dto.CadastroDTO;
+import org.atty.stm.model.dto.CadastroDTO;
 import org.atty.stm.service.UsuarioService;
 
 import java.util.Map;

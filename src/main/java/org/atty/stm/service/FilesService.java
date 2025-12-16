@@ -26,7 +26,7 @@ public class FilesService {
     AuditoriaService auditoriaService;
 
     @Transactional
-    public org.atty.stm.dto.FilesDTO uploadFile(org.atty.stm.dto.FilesDTO dto, Usuario uploader, String ip, String ua) {
+    public org.atty.stm.model.dto.FilesDTO uploadFile(org.atty.stm.model.dto.FilesDTO dto, Usuario uploader, String ip, String ua) {
         Processo p = processoRepository.findById(dto.getProcessoId());
         if (p == null) throw new RuntimeException("Processo não encontrado");
 
@@ -53,7 +53,7 @@ public class FilesService {
         return ok;
     }
 
-    public List<org.atty.stm.dto.FilesDTO> listarPorProcesso(Long processoId) {
-        return MapperUtils.toDTOList(filesRepository.findByProcessoId(processoId), org.atty.stm.dto.FilesDTO.class);
+    public List<org.atty.stm.model.dto.FilesDTO> listarPorProcesso(Long processoId) {
+        return MapperUtils.toDTOList(filesRepository.findByProcessoId(processoId), org.atty.stm.model.dto.FilesDTO.class);
     }
 }

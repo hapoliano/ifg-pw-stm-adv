@@ -5,7 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
-import org.atty.stm.dto.UsuarioDTO;
+import org.atty.stm.model.dto.UsuarioDTO;
 import org.atty.stm.model.AdvogadoVerificacao;
 import org.atty.stm.model.Usuario;
 import org.atty.stm.repository.AdvogadoVerificacaoRepository;

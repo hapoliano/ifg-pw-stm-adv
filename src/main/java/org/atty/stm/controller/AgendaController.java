@@ -10,7 +10,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
-import org.atty.stm.dto.EventoDTO;
+import org.atty.stm.model.dto.EventoDTO;
 import org.atty.stm.service.EventoService;
 import org.atty.stm.model.Usuario;
 

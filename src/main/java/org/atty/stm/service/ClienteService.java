@@ -3,9 +3,10 @@ package org.atty.stm.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.atty.stm.dto.ClienteDTO;
+import org.atty.stm.model.dto.ClienteDTO;
 import org.atty.stm.model.Cliente;
 import org.atty.stm.model.Usuario;
+import org.atty.stm.model.Processo;
 import org.atty.stm.repository.ClienteRepository;
 
 import java.time.LocalDateTime;
@@ -117,7 +118,7 @@ public class ClienteService {
         if (cliente == null) return false;
         if (!temPermissao(usuario, cliente)) throw new RuntimeException("Sem permissão para deletar este cliente");
 
-        long processosCount = org.atty.stm.model.Processo.count("cliente.id = ?1", id);
+        long processosCount = Processo.count("cliente.id = ?1", id);
         if (processosCount > 0) throw new RuntimeException("Não é possível excluir cliente com processos vinculados");
 
         boolean deleted = clienteRepository.deleteById(id);

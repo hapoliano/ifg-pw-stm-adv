@@ -20,8 +20,8 @@ public class NotificationService {
     @Inject
     AuditoriaService auditoriaService;
 
-    public List<org.atty.stm.dto.NotificationDTO> listarPorUsuario(Long usuarioId) {
-        return MapperUtils.toDTOList(repository.findByUsuarioId(usuarioId), org.atty.stm.dto.NotificationDTO.class);
+    public List<org.atty.stm.model.dto.NotificationDTO> listarPorUsuario(Long usuarioId) {
+        return MapperUtils.toDTOList(repository.findByUsuarioId(usuarioId), org.atty.stm.model.dto.NotificationDTO.class);
     }
 
     @Transactional

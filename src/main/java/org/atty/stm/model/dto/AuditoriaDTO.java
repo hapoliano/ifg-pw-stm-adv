@@ -1,4 +1,4 @@
-package org.atty.stm.dto;
+package org.atty.stm.model.dto;
 
 import org.atty.stm.model.Auditoria;
 import java.time.format.DateTimeFormatter;

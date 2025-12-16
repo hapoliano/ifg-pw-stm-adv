@@ -3,7 +3,7 @@ package org.atty.stm.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.atty.stm.dto.EventoDTO;
+import org.atty.stm.model.dto.EventoDTO;
 import org.atty.stm.model.Evento;
 import org.atty.stm.model.Usuario;
 import org.atty.stm.repository.EventoRepository;

@@ -1,7 +1,7 @@
 package org.atty.stm.util;
 
-import org.atty.stm.dto.*;
 import org.atty.stm.model.*;
+import org.atty.stm.model.dto.*;
 
 import java.util.List;
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package org.atty.stm.dto;
+package org.atty.stm.model.dto;
 
 public class NotificationDTO {
 

@@ -1,6 +1,6 @@
 package org.atty.stm.controller;
 
-import org.atty.stm.dto.AuditoriaDTO;
+import org.atty.stm.model.dto.AuditoriaDTO;
 import org.atty.stm.model.Usuario;
 import org.atty.stm.service.AuditoriaService;
 import io.quarkus.qute.Template;

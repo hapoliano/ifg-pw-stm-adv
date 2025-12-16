@@ -1,6 +1,6 @@
 package org.atty.stm.service;
 
-import org.atty.stm.dto.AuditoriaDTO;
+import org.atty.stm.model.dto.AuditoriaDTO;
 import org.atty.stm.model.Auditoria;
 import org.atty.stm.model.Usuario;
 import jakarta.enterprise.context.ApplicationScoped;

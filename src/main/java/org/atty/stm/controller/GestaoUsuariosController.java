@@ -1,7 +1,6 @@
 package org.atty.stm.controller;
 
 import io.quarkus.qute.Template;
-import io.quarkus.qute.TemplateInstance;
 import io.quarkus.qute.Location;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -11,9 +10,8 @@ import jakarta.ws.rs.core.Response;
 import org.atty.stm.service.UsuarioService;
 import org.atty.stm.service.AdvogadoVerificacaoService;
 import org.atty.stm.model.Usuario;
-import org.atty.stm.dto.UsuarioDTO;
+import org.atty.stm.model.dto.UsuarioDTO;
 
-import java.util.List;
 import java.util.Map;
 
 @Path("/gestao-usuarios")

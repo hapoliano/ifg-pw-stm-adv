@@ -7,8 +7,8 @@
     import jakarta.transaction.Transactional;
     import jakarta.ws.rs.WebApplicationException;
     import jakarta.ws.rs.core.Response;
-    import org.atty.stm.dto.CadastroDTO;
-    import org.atty.stm.dto.UsuarioDTO;
+    import org.atty.stm.model.dto.CadastroDTO;
+    import org.atty.stm.model.dto.UsuarioDTO;
     import org.atty.stm.model.Usuario;
     import org.atty.stm.repository.UsuarioRepository;
     import org.atty.stm.util.MapperUtils;

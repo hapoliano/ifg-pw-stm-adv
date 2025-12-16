@@ -2,7 +2,7 @@ package org.atty.stm.repository;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.atty.stm.model.Processo;
-import org.atty.stm.model.ProcessoStatus; // Importação Crucial
+import org.atty.stm.model.enums.ProcessoStatus; // Importação Crucial
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 
 import java.util.List;

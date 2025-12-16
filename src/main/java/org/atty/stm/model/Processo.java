@@ -2,6 +2,8 @@ package org.atty.stm.model;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
+import org.atty.stm.model.enums.ProcessoStatus;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

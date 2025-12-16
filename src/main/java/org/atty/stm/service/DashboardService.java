@@ -2,11 +2,11 @@ package org.atty.stm.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.atty.stm.dto.DashboardDTO;
+import org.atty.stm.model.dto.DashboardDTO;
 import org.atty.stm.model.Usuario;
 import org.atty.stm.model.Processo;
 import org.atty.stm.model.Evento;
-import org.atty.stm.model.ProcessoStatus; // <-- IMPORTAÇÃO ADICIONADA
+import org.atty.stm.model.enums.ProcessoStatus; // <-- IMPORTAÇÃO ADICIONADA
 import org.atty.stm.repository.ClienteRepository;
 import org.atty.stm.repository.ProcessoRepository;
 import org.atty.stm.repository.EventoRepository;

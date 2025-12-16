@@ -8,8 +8,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.atty.stm.controller.ControllerBase;
-import org.atty.stm.dto.DashboardDTO;
+import org.atty.stm.model.dto.DashboardDTO;
 import org.atty.stm.model.Processo;
 import org.atty.stm.model.Evento;
 import org.atty.stm.model.Usuario; // Adicionado para uso no Audit

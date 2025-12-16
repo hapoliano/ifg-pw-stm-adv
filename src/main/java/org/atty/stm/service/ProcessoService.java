@@ -6,12 +6,12 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 // IMPORTAÇÕES CORRETAS
-import org.atty.stm.dto.ProcessoDTO; // Usa o seu DTO existente
-import org.atty.stm.dto.StatusUpdateDTO; // <--- NOVO IMPORT CORRETO
+import org.atty.stm.model.dto.ProcessoDTO; // Usa o seu DTO existente
+import org.atty.stm.model.dto.StatusUpdateDTO; // <--- NOVO IMPORT CORRETO
 // Assumindo que você tem essas classes no pacote exception (prática recomendada)
 import org.atty.stm.exception.NotFoundException;
 import org.atty.stm.exception.ForbiddenException;
-import org.atty.stm.model.ProcessoStatus; // Enum de Status
+import org.atty.stm.model.enums.ProcessoStatus; // Enum de Status
 
 // Assumindo a existência dessas classes nos seus pacotes model e repository
 import org.atty.stm.model.Cliente;

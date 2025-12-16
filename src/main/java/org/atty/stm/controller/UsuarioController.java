@@ -5,7 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.atty.stm.dto.UsuarioDTO;
+import org.atty.stm.model.dto.UsuarioDTO;
 import org.atty.stm.model.Usuario;
 import org.atty.stm.service.UsuarioService;
 
