@@ -19,17 +19,16 @@ services:
     networks:
       - stm-network
 
-  # Opcional: Interface visual para ver o banco (pgAdmin)
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin_stm
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@stm.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+  openvidu:
+    image: openvidu/openvidu-server:2.30.0
+    container_name: openvidu_server
+    restart: always
     ports:
-      - "5050:80"
-    depends_on:
-      - db-stmadv
+      - "4443:4443"
+    environment:
+      - OPENVIDU_SECRET=MY_SECRET
+      - DOMAIN_OR_PUBLIC_IP=localhost
+      - HTTPS_PORT=4443
     networks:
       - stm-network
 

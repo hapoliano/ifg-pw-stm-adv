@@ -333,20 +333,33 @@
     // 1. Chamada ao Backend para obter Token
     async function getToken() {
         // Assume que o endpoint de token é /video/api/token
-        const res = await fetch('/video/api/token', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionId: SESSION_ID, userName: USER_NAME })
-        });
+        try {
+            const res = await fetch('/video/api/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId: SESSION_ID, userName: USER_NAME })
+            });
 
-        if (!res.ok) {
-            // Tratamento de erro do backend (Quarkus)
-            const error = await res.json();
-            throw new Error(error.error || 'Falha ao obter token. Verifique as credenciais OpenVidu.');
+            if (!res.ok) {
+                // Tenta ler como JSON, se falhar, lê como texto
+                const text = await res.text();
+                let errorMsg = 'Erro desconhecido no servidor.';
+                try {
+                    const json = JSON.parse(text);
+                    errorMsg = json.error || json.message || errorMsg;
+                } catch (e) {
+                    console.warn("Resposta de erro não é JSON:", text);
+                    errorMsg = "Erro interno no servidor (Verifique os logs do Quarkus).";
+                }
+                throw new Error(errorMsg);
+            }
+
+            const data = await res.json();
+            return data.token;
+        } catch (err) {
+            // Repassa o erro para o catch do joinSession
+            throw err;
         }
-
-        const data = await res.json();
-        return data.token;
     }
 
     // 2. Conectar à Sessão (Lógica OpenVidu...)
