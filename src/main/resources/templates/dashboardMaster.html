@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Master - STM-ADV</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="/css/sidebar.css">
+
     <link rel="preconnect" href="/dashboard/master">
     <link rel="preconnect" href="/dashboard-master/alertas">
+
     <style>
-        /* CSS PADRONIZADO (ADOTADO DO DASHBOARD ADVOGADO) */
+        /* CSS ESPECÍFICO DO DASHBOARD (O que é comum foi para sidebar.css) */
         :root {
             --primary-color: #2c3e50; /* Cinza Escuro (Sidebar/Header) */
             --secondary-color: #34495e; /* Cinza Escuro 2 */
@@ -48,85 +53,6 @@
             font-weight: 600;
             font-size: 1.3rem;
             margin-left: 0.5rem;
-        }
-
-        /* SIDEBAR PADRONIZADA */
-        .sidebar {
-            background-color: var(--primary-color);
-            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
-            padding-top: 1rem;
-            width: 250px;
-            position: fixed;
-            top: 56px;
-            bottom: 0;
-            overflow-y: auto;
-            z-index: 1020;
-            display: flex;
-            flex-direction: column;
-            transition: left 0.3s ease-in-out;
-        }
-
-        .sidebar nav { flex-grow: 1; }
-
-        .sidebar a.nav-link {
-            color: rgba(255, 255, 255, 0.75);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            padding: 0.8rem 1.5rem;
-            transition: all 0.2s ease;
-            border-left: 4px solid transparent;
-            font-size: 0.95rem;
-        }
-
-        .sidebar a.nav-link i {
-            margin-right: 0.8rem;
-            font-size: 1.1rem;
-            width: 20px;
-            text-align: center;
-            opacity: 0.9;
-        }
-
-        .sidebar a.nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: white;
-            border-left-color: var(--accent-color);
-        }
-
-        .sidebar a.nav-link.active {
-            background-color: rgba(52, 152, 219, 0.15);
-            color: white;
-            font-weight: 500;
-            border-left-color: var(--accent-color);
-        }
-
-        .sidebar .mt-auto { margin-top: auto; padding-bottom: 1rem; }
-        .sidebar hr { border-color: rgba(255, 255, 255, 0.15); }
-
-        .content-wrapper {
-            margin-left: 250px;
-            padding: 2rem;
-            flex-grow: 1;
-            min-width: 0;
-            transition: margin-left 0.3s ease-in-out;
-        }
-
-        @media (max-width: 992px) {
-            .sidebar { left: -250px; top: 0; height: 100vh; z-index: 1040; }
-            .sidebar.show { left: 0; }
-            .content-wrapper { margin-left: 0; }
-            .navbar-toggler { display: block !important; border: none; }
-            .navbar-toggler:focus { box-shadow: none; }
-            .sidebar-overlay {
-                position: fixed;
-                top: 0; left: 0; width: 100%; height: 100%;
-                background-color: rgba(0,0,0,0.6); z-index: 1039; display: none;
-            }
-            .sidebar.show + .sidebar-overlay { display: block; }
-            .main-header { height: auto; min-height: 56px; }
-        }
-        @media (min-width: 993px) {
-            .navbar-toggler { display: none !important; }
         }
 
         /* TÍTULO DA PÁGINA PADRONIZADO */
@@ -253,32 +179,7 @@
 
 <div class="d-flex flex-grow-1">
     <aside class="sidebar collapse d-lg-block" id="sidebarNav">
-        <nav class="nav flex-column">
-            <a href="/dashboard/master" class="nav-link active">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-            <a href="/gestao-usuarios" class="nav-link" title="Gerenciar Usuários e Aprovações">
-                <i class="bi bi-people-fill"></i> Usuários
-            </a>
-            <a href="/processos" class="nav-link" title="Ver Todos Processos">
-                <i class="bi bi-folder2-open"></i> Processos
-            </a>
-            <a href="/agenda" class="nav-link" title="Ver Agenda e Eventos">
-                <i class="bi bi-calendar-date-fill"></i> Agenda
-            </a>
-            <a href="/auditoria" class="nav-link" title="Ver Auditoria">
-                <i class="bi bi-shield-check"></i> Auditoria
-            </a>
-        </nav>
-        <div class="mt-auto">
-            <hr class="mx-3">
-            <a href="/perfil" class="nav-link" title="Editar Perfil">
-                <i class="bi bi-person-gear"></i> Meu Perfil
-            </a>
-            <a href="#" class="nav-link" onclick="fazerLogout(); return false;">
-                <i class="bi bi-box-arrow-right"></i> Sair
-            </a>
-        </div>
+            {#include sidebar.html /}
     </aside>
 
     <div class="sidebar-overlay d-lg-none" data-bs-toggle="collapse" data-bs-target="#sidebarNav"></div>

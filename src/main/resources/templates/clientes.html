@@ -8,15 +8,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
+    <link rel="stylesheet" href="/css/sidebar.css">
+
     <style>
-        /* CSS PADRONIZADO (UNIFICADO) */
+        /* MANTIDO APENAS O CSS ESPECÍFICO (Layout geral vem de sidebar.css) */
         :root {
-            --primary-color: #2c3e50; /* Cinza Escuro (Sidebar/Header) */
-            --secondary-color: #34495e; /* Cinza Escuro 2 */
-            --accent-color: #3498db; /* Azul */
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
             --light-bg: #f8f9fa;
             --bs-body-bg: var(--light-bg);
-            --success-color: #2ecc71; /* Para o status ATIVO */
+            --success-color: #2ecc71;
         }
 
         body {
@@ -27,7 +29,7 @@
             flex-direction: column;
         }
 
-        /* HEADER PADRONIZADO */
+        /* HEADER */
         .main-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             box-shadow: 0 2px 5px rgba(0,0,0,0.15);
@@ -39,7 +41,6 @@
 
         .navbar-brand img {
             height: 35px;
-            /* Se a imagem for escura, inverte para branco */
             filter: brightness(0) invert(1);
             margin-top: -3px;
         }
@@ -49,61 +50,7 @@
             margin-left: 0.5rem;
         }
 
-        /* SIDEBAR PADRONIZADA */
-        .sidebar {
-            background-color: var(--primary-color);
-            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
-            padding-top: 1rem;
-            width: 250px;
-            position: fixed;
-            top: 56px;
-            bottom: 0;
-            overflow-y: auto;
-            z-index: 1020;
-            display: flex;
-            flex-direction: column;
-            transition: left 0.3s ease-in-out;
-        }
-        .sidebar a.nav-link {
-            color: rgba(255, 255, 255, 0.75);
-            padding: 0.8rem 1.5rem;
-            border-left: 4px solid transparent;
-        }
-        .sidebar a.nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: white;
-            border-left-color: var(--accent-color);
-        }
-        .sidebar a.nav-link.active {
-            background-color: rgba(52, 152, 219, 0.15);
-            color: white;
-            border-left-color: var(--accent-color);
-        }
-        .content-wrapper {
-            margin-left: 250px;
-            padding: 2rem;
-            flex-grow: 1;
-        }
-
-        @media (max-width: 992px) {
-            .sidebar { left: -250px; top: 0; height: 100vh; z-index: 1040; }
-            .sidebar.show { left: 0; }
-            .content-wrapper { margin-left: 0; }
-            .navbar-toggler { display: block !important; border: none; }
-            .navbar-toggler:focus { box-shadow: none; }
-            .sidebar-overlay {
-                position: fixed;
-                top: 0; left: 0; width: 100%; height: 100%;
-                background-color: rgba(0,0,0,0.6); z-index: 1039; display: none;
-            }
-            .sidebar.show + .sidebar-overlay { display: block; }
-            .main-header { height: auto; min-height: 56px; }
-        }
-        @media (min-width: 993px) {
-            .navbar-toggler { display: none !important; }
-        }
-
-        /* TÍTULO DA PÁGINA PADRONIZADO */
+        /* TÍTULOS */
         .page-title {
             color: var(--primary-color);
             font-weight: 600;
@@ -118,7 +65,7 @@
             color: var(--secondary-color);
         }
 
-        /* FOOTER PADRONIZADO */
+        /* FOOTER */
         .main-footer {
             background-color: #ffffff;
             color: var(--primary-color);
@@ -134,7 +81,7 @@
         .main-footer a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
         .main-footer a:hover { color: var(--accent-color); text-decoration: underline;}
 
-        /* ESTILOS DE CARD E TABELA (PADRÃO UNIFICADO) */
+        /* CARDS E TABELAS */
         .card {
             border: none;
             border-radius: 0.75rem;
@@ -159,17 +106,16 @@
             font-size: 1.1rem;
         }
 
-        /* Estilos de Tabela (unificados) */
         .table thead th {
             background-color: #f8f9fa;
             color: var(--primary-color);
             font-weight: 600;
-            font-size: 0.75rem; /* text-xxs */
+            font-size: 0.75rem;
             text-transform: uppercase;
         }
         .table tbody tr td {
             padding: 0.75rem 1.5rem;
-            font-size: 0.875rem; /* text-sm */
+            font-size: 0.875rem;
             vertical-align: middle;
         }
         .table-hover tbody tr:hover {
@@ -184,7 +130,7 @@
             color: white !important;
         }
 
-        /* Estilo do Input de Pesquisa Padronizado */
+        /* Inputs */
         .input-group-text {
             background-color: #fff;
             border-right: none;
@@ -208,7 +154,7 @@
         </button>
 
         <a class="navbar-brand d-flex align-items-center me-auto" href="/">
-            <img src="/assets/img/logo.png" alt="Logo STM-ADV" class="me-2">
+            <img src="/img/ld.png" alt="Logo STM-ADV" class="me-2">
             <span>STM-ADV</span>
         </a>
 
@@ -227,49 +173,9 @@
 </header>
 
 <div class="d-flex flex-grow-1">
+
     <aside class="sidebar collapse d-lg-block" id="sidebarNav">
-        <nav class="nav flex-column flex-grow-1">
-
-            <a href="{#if usuario.perfil == 'MASTER'}/dashboard/master{#else if usuario.perfil == 'ADVOGADO'}/dashboard{#else}/dashboard/cliente{/if}" class="nav-link">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-
-            {#if usuario.perfil == 'MASTER' || usuario.perfil == 'ADVOGADO'}
-            <a href="/clientes" class="nav-link active">
-                <i class="bi bi-people"></i> Clientes
-            </a>
-            <a href="/processos" class="nav-link">
-                <i class="bi bi-journal-text"></i> Processos
-            </a>
-            <a href="/agenda" class="nav-link">
-                <i class="bi bi-calendar-check"></i> Agenda
-            </a>
-            {/if}
-
-            {#if usuario.perfil == 'MASTER'}
-            <a href="/gestao-usuarios" class="nav-link">
-                <i class="bi bi-person-gear"></i> Gestão Usuários
-            </a>
-            <a href="/auditoria" class="nav-link">
-                <i class="bi bi-shield-lock"></i> Auditoria
-            </a>
-            {/if}
-
-            <a href="/video-chamada" class="nav-link">
-                <i class="bi bi-camera-video"></i> Vídeo Chamada
-            </a>
-
-        </nav>
-
-        <div class="mt-auto">
-            <hr class="mx-3 border-secondary">
-            <a href="/perfil" class="nav-link">
-                <i class="bi bi-person-gear"></i> Meu Perfil
-            </a>
-            <a href="#" class="nav-link text-white" onclick="fazerLogout(); return false;">
-                <i class="bi bi-box-arrow-right"></i> Sair
-            </a>
-        </div>
+            {#include sidebar.html /}
     </aside>
 
     <div class="sidebar-overlay d-lg-none" data-bs-toggle="collapse" data-bs-target="#sidebarNav"></div>
@@ -413,6 +319,8 @@
         });
     }
 
+    // Nota: O botão de Logout agora está no sidebar.html
+    // Mas mantemos a função caso algum outro botão dependa dela
     function fazerLogout() {
         if (!confirm('Deseja realmente sair do sistema?')) return;
 
@@ -435,7 +343,7 @@
     });
 
     function inicializarClientes() {
-        // Inicialização padrão de sidebar e footer
+        // Inicialização de sidebar e overlay
         const sidebar = document.getElementById('sidebarNav');
         const overlay = document.querySelector('.sidebar-overlay');
         if (sidebar && overlay) {
@@ -446,9 +354,11 @@
                 if (bsCollapse) bsCollapse.hide();
             });
         }
-        document.getElementById('footerYear').textContent = new Date().getFullYear();
 
-        console.log('✅ Dashboard Clientes padronizado e inicializado.');
+        const footerYear = document.getElementById('footerYear');
+        if(footerYear) footerYear.textContent = new Date().getFullYear();
+
+        console.log('✅ Clientes inicializado.');
     }
 
     // Lógica de Filtro/Pesquisa
@@ -534,25 +444,25 @@
                     <td>
                         <p class="text-sm font-weight-bold mb-0 ps-3">${nome}</p>
                         ${cliente.advogadoResponsavel ? `<small class="text-muted ps-3">Adv: ${cliente.advogadoResponsavel}</small>` : ''}
-                    </td>
-                    <td><p class="text-sm mb-0">${email}</p></td>
-                    <td><p class="text-sm mb-0">${telefone}</p></td>
-                    <td>
+        </td>
+            <td><p class="text-sm mb-0">${email}</p></td>
+            <td><p class="text-sm mb-0">${telefone}</p></td>
+            <td>
                         <span class="badge ${statusClass}">
                             ${status}
                         </span>
-                    </td>
-                    <td>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary btn-sm" onclick="editarCliente(${id})" title="Editar">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm" onclick="excluirCliente(${id})" title="Excluir">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
+            </td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary btn-sm" onclick="editarCliente(${id})" title="Editar">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="excluirCliente(${id})" title="Excluir">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
             `;
         });
 
