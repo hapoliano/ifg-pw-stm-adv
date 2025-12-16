@@ -4,6 +4,7 @@ import io.quarkus.qute.Template;
 import io.quarkus.qute.Location;
 import io.quarkus.qute.TemplateInstance;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 @Path("/gestao-usuarios")
 @RolesAllowed("MASTER")
+@RequestScoped
 public class GestaoUsuariosController extends ControllerBase {
 
     @Inject

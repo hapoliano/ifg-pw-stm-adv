@@ -2,14 +2,16 @@ package org.atty.stm.controller;
 
 import io.quarkus.qute.Location;
 import io.quarkus.qute.Template;
+import jakarta.enterprise.context.RequestScoped; // IMPORTANTE: Necessário para evitar vazamento de dados entre usuários
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.*; // UriInfo, NewCookie, SecurityContext
+import jakarta.ws.rs.core.*;
 import org.atty.stm.service.AuthService;
 
 import java.util.Map;
 
 @Path("/login")
+@RequestScoped // <--- A CORREÇÃO PRINCIPAL ESTÁ AQUI
 public class LoginController extends ControllerBase {
 
     @Inject
@@ -19,6 +21,8 @@ public class LoginController extends ControllerBase {
     @Inject
     AuthService authService;
 
+    // Nota: UriInfo e SecurityContext já existem na ControllerBase,
+    // mas mantivemos aqui caso você prefira usar os locais.
     @Context
     UriInfo uriInfo;
 
@@ -63,6 +67,7 @@ public class LoginController extends ControllerBase {
                     .entity(Map.of("success", false, "mensagem", e.getMessage()))
                     .build();
         } catch (Exception e) {
+            e.printStackTrace(); // Bom para debugar no console
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("success", false, "mensagem", "Erro interno no servidor."))
                     .build();
@@ -72,24 +77,42 @@ public class LoginController extends ControllerBase {
     @GET
     @Produces(MediaType.TEXT_HTML)
     public Response getLogin() {
+        // Se o usuário já estiver logado (cookie válido), redireciona para a dashboard correta
         if (securityContext.getUserPrincipal() != null) {
-            return Response.status(Response.Status.SEE_OTHER)
-                    .location(uriInfo.getBaseUriBuilder().path("/dashboard").build())
-                    .build();
+            return redirecionarPorPerfil();
         }
 
         return Response.ok(loginTemplate.data("contextPath", uriInfo.getBaseUri())).build();
     }
 
+    /**
+     * Método auxiliar para enviar cada perfil para sua tela correta.
+     * Isso evita que um Master caia na tela de Cliente ou vice-versa.
+     */
+    private Response redirecionarPorPerfil() {
+        String destino = "/dashboard"; // Default (Advogado)
+
+        if (securityContext.isUserInRole("MASTER")) {
+            destino = "/dashboard/master";
+        } else if (securityContext.isUserInRole("CLIENTE")) {
+            destino = "/dashboard/cliente";
+        }
+
+        return Response.status(Response.Status.SEE_OTHER)
+                .location(uriInfo.getBaseUriBuilder().path(destino).build())
+                .build();
+    }
+
     @GET
     @Path("/logout")
     public Response logout() {
+        // Garante a destruição do cookie antigo
         NewCookie expiredCookie = new NewCookie.Builder("token")
                 .value("")
                 .path("/")
                 .maxAge(0)
                 .httpOnly(true)
-                .secure(false)
+                .secure(false) // Mude para true em produção com HTTPS
                 .build();
 
         return Response.status(Response.Status.SEE_OTHER)

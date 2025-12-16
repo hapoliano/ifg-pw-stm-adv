@@ -4,6 +4,7 @@ import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.qute.Location;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Path("/clientes")
 @RolesAllowed({"MASTER", "ADVOGADO", "CLIENTE"}) // Cliente também pode ver SEUS dados de cliente
+@RequestScoped
 public class ClientesController extends org.atty.stm.controller.ControllerBase { // <-- Estende ControllerBase
 
     @Inject

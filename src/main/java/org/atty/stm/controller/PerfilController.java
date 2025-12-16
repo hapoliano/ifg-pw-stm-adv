@@ -1,5 +1,6 @@
 package org.atty.stm.controller;
 
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -13,6 +14,7 @@ import jakarta.annotation.security.RolesAllowed;
 
 @Path("/perfil")
 @RolesAllowed({"MASTER", "ADVOGADO", "CLIENTE"}) // Protege a rota
+@RequestScoped
 public class PerfilController extends ControllerBase {
 
     @Inject

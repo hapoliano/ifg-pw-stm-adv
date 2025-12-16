@@ -4,6 +4,7 @@ import io.quarkus.qute.Location;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -12,6 +13,7 @@ import jakarta.ws.rs.core.MediaType;
 
 @Path("/video-chamada") // Corrigido para /video-chamada, como está na sidebar
 @RolesAllowed({"MASTER", "ADVOGADO", "CLIENTE"})
+@RequestScoped
 public class VideoChamadaController extends ControllerBase {
 
     @Inject

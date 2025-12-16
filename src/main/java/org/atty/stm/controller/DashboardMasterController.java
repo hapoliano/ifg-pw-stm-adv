@@ -4,6 +4,7 @@ import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.qute.Location;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -21,6 +22,7 @@ import java.util.Map;
 
 @Path("/dashboard/master")
 @RolesAllowed("MASTER")
+@RequestScoped
 public class DashboardMasterController extends ControllerBase {
 
     @Inject

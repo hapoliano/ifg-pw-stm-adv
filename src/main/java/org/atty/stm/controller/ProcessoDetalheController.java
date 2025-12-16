@@ -4,6 +4,7 @@ import io.quarkus.qute.Location;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -15,6 +16,7 @@ import org.atty.stm.service.ProcessoService;
 
 @Path("/processodetalhe")
 @RolesAllowed({"MASTER", "ADVOGADO", "CLIENTE"})
+@RequestScoped
 public class ProcessoDetalheController extends ControllerBase {
 
     @Inject

@@ -20,12 +20,15 @@
 </div>
 
 <script>
+    // Limpa dados do lado do cliente (localStorage/SessionStorage)
     localStorage.clear();
+    sessionStorage.clear(); // Adicionei session storage por garantia
 
+    // Aguarda 1 segundo e redireciona para o login
     setTimeout(() => {
-        window.location.href = '/logout/confirmar';
+        // Redireciona para /login em vez de /logout/confirmar
+        window.location.href = '/login';
     }, 1000);
-
 </script>
 </body>
 </html>

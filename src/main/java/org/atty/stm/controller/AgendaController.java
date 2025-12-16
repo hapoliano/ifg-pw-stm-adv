@@ -4,6 +4,7 @@ import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.qute.Location;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -15,6 +16,7 @@ import org.atty.stm.service.EventoService;
 import org.atty.stm.model.Usuario;
 
 @Path("/agenda")
+@RequestScoped
 @RolesAllowed({"MASTER", "ADVOGADO", "CLIENTE"})
 @Produces(MediaType.TEXT_HTML)
 public class AgendaController extends org.atty.stm.controller.ControllerBase {

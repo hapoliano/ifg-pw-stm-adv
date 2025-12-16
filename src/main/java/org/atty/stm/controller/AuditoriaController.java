@@ -1,5 +1,6 @@
 package org.atty.stm.controller;
 
+import jakarta.enterprise.context.RequestScoped;
 import org.atty.stm.model.dto.AuditoriaDTO;
 import org.atty.stm.model.Usuario;
 import org.atty.stm.service.AuditoriaService;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Path("/auditoria")
 @RolesAllowed({"MASTER"})
+@RequestScoped
 public class AuditoriaController extends org.atty.stm.controller.ControllerBase {
 
     @Inject

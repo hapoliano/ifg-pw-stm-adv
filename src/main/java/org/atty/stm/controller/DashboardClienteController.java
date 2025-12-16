@@ -3,6 +3,7 @@ package org.atty.stm.controller;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.qute.Location;
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 // NOTA: O Produces(MediaType.APPLICATION_JSON) só vale para os endpoints que não especificarem outro
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@RequestScoped
 public class DashboardClienteController extends ControllerBase {
 
     @Inject
