@@ -6,8 +6,11 @@
     <title>Dashboard Cliente - STM-ADV</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="/css/sidebar.css">
+
     <style>
-        /* CSS PADRONIZADO (ADOTADO DO DASHBOARD ADVOGADO) */
+        /* CSS ESPECÍFICO DA PÁGINA (Layout geral e Sidebar vêm de sidebar.css) */
         :root {
             --primary-color: #2c3e50; /* Cinza Escuro (Sidebar/Header) */
             --secondary-color: #34495e; /* Cinza Escuro 2 */
@@ -27,7 +30,7 @@
             flex-direction: column;
         }
 
-        /* HEADER PADRONIZADO */
+        /* HEADER */
         .main-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             box-shadow: 0 2px 5px rgba(0,0,0,0.15);
@@ -48,61 +51,7 @@
             margin-left: 0.5rem;
         }
 
-        /* SIDEBAR PADRONIZADA */
-        .sidebar {
-            background-color: var(--primary-color);
-            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
-            padding-top: 1rem;
-            width: 250px;
-            position: fixed;
-            top: 56px;
-            bottom: 0;
-            overflow-y: auto;
-            z-index: 1020;
-            display: flex;
-            flex-direction: column;
-            transition: left 0.3s ease-in-out;
-        }
-        .sidebar a.nav-link {
-            color: rgba(255, 255, 255, 0.75);
-            padding: 0.8rem 1.5rem;
-            border-left: 4px solid transparent;
-        }
-        .sidebar a.nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: white;
-            border-left-color: var(--accent-color);
-        }
-        .sidebar a.nav-link.active {
-            background-color: rgba(52, 152, 219, 0.15);
-            color: white;
-            border-left-color: var(--accent-color);
-        }
-        .content-wrapper {
-            margin-left: 250px;
-            padding: 2rem;
-            flex-grow: 1;
-        }
-
-        @media (max-width: 992px) {
-            .sidebar { left: -250px; top: 0; height: 100vh; z-index: 1040; }
-            .sidebar.show { left: 0; }
-            .content-wrapper { margin-left: 0; }
-            .navbar-toggler { display: block !important; border: none; }
-            .navbar-toggler:focus { box-shadow: none; }
-            .sidebar-overlay {
-                position: fixed;
-                top: 0; left: 0; width: 100%; height: 100%;
-                background-color: rgba(0,0,0,0.6); z-index: 1039; display: none;
-            }
-            .sidebar.show + .sidebar-overlay { display: block; }
-            .main-header { height: auto; min-height: 56px; }
-        }
-        @media (min-width: 993px) {
-            .navbar-toggler { display: none !important; }
-        }
-
-        /* TÍTULO DA PÁGINA PADRONIZADO */
+        /* TÍTULO DA PÁGINA */
         .page-title {
             color: var(--primary-color);
             font-weight: 600;
@@ -117,7 +66,7 @@
             color: var(--secondary-color);
         }
 
-        /* FOOTER PADRONIZADO */
+        /* FOOTER */
         .main-footer {
             background-color: #ffffff;
             color: var(--primary-color);
@@ -133,7 +82,7 @@
         .main-footer a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
         .main-footer a:hover { color: var(--accent-color); text-decoration: underline;}
 
-        /* ESTILOS DE CARD (PADRÃO ADVOGADO) */
+        /* ESTILOS DE CARD E GRADIENTES */
         .card {
             border: none;
             border-radius: 0.75rem;
@@ -158,7 +107,6 @@
             font-size: 1.1rem;
         }
 
-        /* Gradientes dos Cards (Cores Aprovadas) */
         .bg-gradient-success { background-image: linear-gradient(310deg, #2dce89, #2ecc71); }
         .bg-gradient-info { background-image: linear-gradient(310deg, #11c1e0, #3498db); }
         .bg-gradient-danger { background-image: linear-gradient(310deg, #f5365c, #e74c3c); }
@@ -208,30 +156,9 @@
 </header>
 
 <div class="d-flex flex-grow-1">
+
     <aside class="sidebar collapse d-lg-block" id="sidebarNav">
-        <nav class="nav flex-column">
-            <a href="/dashboard/cliente" class="nav-link active">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-            <a href="/processos" class="nav-link">
-                <i class="bi bi-folder2-open"></i> Meus Processos
-            </a>
-            <a href="/agenda" class="nav-link">
-                <i class="bi bi-calendar-event"></i> Minha Agenda
-            </a>
-            <a href="/videoChamada" class="nav-link">
-                <i class="bi bi-camera-video"></i> Videochamada
-            </a>
-        </nav>
-        <div class="mt-auto">
-            <hr class="mx-3">
-            <a href="/perfil" class="nav-link">
-                <i class="bi bi-person-gear"></i> Meu Perfil
-            </a>
-            <a href="#" class="nav-link" onclick="fazerLogout(); return false;">
-                <i class="bi bi-box-arrow-right"></i> Sair
-            </a>
-        </div>
+            {#include sidebar.html /}
     </aside>
 
     <div class="sidebar-overlay d-lg-none" data-bs-toggle="collapse" data-bs-target="#sidebarNav"></div>
@@ -247,7 +174,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="text-start">
                             <p class="text-sm mb-0 text-white opacity-7">Total Processos</p>
-                            <h5 class="font-weight-bolder text-white mb-0">{totalProcessos ?: 0}</h5>
+                            <h5 class="font-weight-bolder text-white mb-0" id="totalProcessos">{totalProcessos ?: 0}</h5>
                         </div>
                         <div class="icon icon-shape text-dark text-center rounded-circle">
                             <i class="bi bi-folder2-open opacity-10"></i>
@@ -260,7 +187,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="text-start">
                             <p class="text-sm mb-0 text-white opacity-7">Processos Ativos</p>
-                            <h5 class="font-weight-bolder text-white mb-0">{processosAtivos ?: 0}</h5>
+                            <h5 class="font-weight-bolder text-white mb-0" id="processosAtivos">{processosAtivos ?: 0}</h5>
                         </div>
                         <div class="icon icon-shape text-dark text-center rounded-circle">
                             <i class="bi bi-activity opacity-10"></i>
@@ -273,7 +200,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="text-start">
                             <p class="text-sm mb-0 text-white opacity-7">Próximas Audiências</p>
-                            <h5 class="font-weight-bolder text-white mb-0">{proximasAudiencias ?: 0}</h5>
+                            <h5 class="font-weight-bolder text-white mb-0" id="proximasAudiencias">{proximasAudiencias ?: 0}</h5>
                         </div>
                         <div class="icon icon-shape text-dark text-center rounded-circle">
                             <i class="bi bi-calendar-event opacity-10"></i>
@@ -286,7 +213,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="text-start">
                             <p class="text-sm mb-0 text-white opacity-7">Mensagens Não Lidas</p>
-                            <h5 class="font-weight-bolder text-white mb-0">{mensagensNaoLidas ?: 0}</h5>
+                            <h5 class="font-weight-bolder text-white mb-0" id="mensagensNaoLidas">{mensagensNaoLidas ?: 0}</h5>
                         </div>
                         <div class="icon icon-shape text-dark text-center rounded-circle">
                             <i class="bi bi-chat-dots opacity-10"></i>
@@ -308,30 +235,30 @@
                     </div>
                     <div class="card-body">
                         {#if processosLista.size() > 0}
-                        {#for processo in processosLista}
-                        <div class="mb-3 p-3 border rounded">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="mb-1">{processo.numeroProcesso ?: 'N/A'}</h6>
-                                    <p class="mb-1 text-muted small">{processo.titulo ?: processo.descricao ?: 'Processo'}</p>
-                                    <span class="badge bg-{processo.status == 'EM_ANDAMENTO' ? 'success' : 'secondary'}">
+                            {#for processo in processosLista}
+                                <div class="mb-3 p-3 border rounded">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">{processo.numeroProcesso ?: 'N/A'}</h6>
+                                            <p class="mb-1 text-muted small">{processo.titulo ?: processo.descricao ?: 'Processo'}</p>
+                                            <span class="badge bg-{processo.status == 'EM_ANDAMENTO' ? 'success' : 'secondary'}">
                                                 {processo.status ?: 'N/A'}
                                             </span>
-                                    {#if processo.advogadoResponsavel}
-                                    <br><small class="text-muted">Advogado: {processo.advogadoResponsavel}</small>
-                                    {/if}
+                                            {#if processo.advogadoResponsavel}
+                                                <br><small class="text-muted">Advogado: {processo.advogadoResponsavel}</small>
+                                            {/if}
+                                        </div>
+                                        <a href="/processos/{processo.id}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </div>
                                 </div>
-                                <a href="/processos/{processo.id}" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                            </div>
-                        </div>
-                        {/for}
+                            {/for}
                         {#else}
-                        <div class="text-center py-4">
-                            <i class="bi bi-folder-x" style="font-size: 3rem; color: #6c757d;"></i>
-                            <p class="text-muted mt-2">Nenhum processo encontrado</p>
-                        </div>
+                            <div class="text-center py-4">
+                                <i class="bi bi-folder-x" style="font-size: 3rem; color: #6c757d;"></i>
+                                <p class="text-muted mt-2">Nenhum processo encontrado</p>
+                            </div>
                         {/if}
                     </div>
                 </div>
@@ -365,16 +292,16 @@
                     </div>
                     <div class="card-body text-center">
                         {#if advogadoInfo.nome}
-                        <i class="bi bi-person-badge" style="font-size: 3rem; color: #3498db;"></i>
-                        <h6 class="mt-2 mb-1">{advogadoInfo.nome}</h6>
-                        <p class="text-muted small mb-1">{advogadoInfo.especialidade ?: 'Advogado'}</p>
-                        <small class="text-muted">OAB: {advogadoInfo.oab ?: 'N/A'}</small>
-                        {#if advogadoInfo.telefone}
-                        <br><small class="text-muted">Tel: {advogadoInfo.telefone}</small>
-                        {/if}
+                            <i class="bi bi-person-badge" style="font-size: 3rem; color: #3498db;"></i>
+                            <h6 class="mt-2 mb-1">{advogadoInfo.nome}</h6>
+                            <p class="text-muted small mb-1">{advogadoInfo.especialidade ?: 'Advogado'}</p>
+                            <small class="text-muted">OAB: {advogadoInfo.oab ?: 'N/A'}</small>
+                            {#if advogadoInfo.telefone}
+                                <br><small class="text-muted">Tel: {advogadoInfo.telefone}</small>
+                            {/if}
                         {#else}
-                        <i class="bi bi-person-x" style="font-size: 3rem; color: #6c757d;"></i>
-                        <p class="text-muted mt-2 mb-0">Não atribuído</p>
+                            <i class="bi bi-person-x" style="font-size: 3rem; color: #6c757d;"></i>
+                            <p class="text-muted mt-2 mb-0">Não atribuído</p>
                         {/if}
                     </div>
                 </div>
@@ -416,12 +343,13 @@
     // ------------------------------
     async function carregarDashboardAsync() {
         try {
-            const response = await fetch('/dashboard/cliente'); // Chama o endpoint JSON
+            // Este endpoint deve retornar um JSON com os dados para os cards
+            const response = await fetch('/dashboard/cliente/api/stats');
             if (!response.ok) throw new Error('Erro ao carregar dashboard: ' + response.status);
 
             const dados = await response.json();
 
-            // Atualiza os elementos com os dados (usando os nomes do JSON)
+            // Atualiza os elementos com os dados
             document.getElementById('totalProcessos').textContent = dados.totalProcessos || 0;
             document.getElementById('processosAtivos').textContent = dados.processosAtivos || 0;
             document.getElementById('proximasAudiencias').textContent = dados.proximasAudiencias || 0;
@@ -429,6 +357,11 @@
 
         } catch (error) {
             console.error('Erro ao carregar dados do dashboard:', error);
+            // Se houver erro, garante que os valores do Qute (iniciais) permaneçam ou use um fallback
+            document.getElementById('totalProcessos').textContent = document.getElementById('totalProcessos').textContent || 'N/A';
+            document.getElementById('processosAtivos').textContent = document.getElementById('processosAtivos').textContent || 'N/A';
+            document.getElementById('proximasAudiencias').textContent = document.getElementById('proximasAudiencias').textContent || 'N/A';
+            document.getElementById('mensagensNaoLidas').textContent = document.getElementById('mensagensNaoLidas').textContent || 'N/A';
         }
     }
 
@@ -442,14 +375,21 @@
 
         // 1. Configuração da Sidebar (Mobile)
         if (sidebar && overlay) {
-            // ... (lógica existente) ...
+            sidebar.addEventListener('show.bs.collapse', () => overlay.style.display = 'block');
+            sidebar.addEventListener('hide.bs.collapse', () => overlay.style.display = 'none');
+            overlay.addEventListener('click', () => {
+                const bsCollapse = bootstrap.Collapse.getInstance(sidebar);
+                if (bsCollapse) bsCollapse.hide();
+            });
         }
 
         // 2. Ano do footer
         document.getElementById('footerYear').textContent = new Date().getFullYear();
 
-        // 3. Carrega os dados assincronamente (Endpoint JSON)
-        carregarDashboardAsync();
+        // 3. Carrega os dados assincronamente
+        // Nota: Removido o carregamento assíncrono para evitar duplicidade com o Qute.
+        // Se a lógica de back-end fornecer o JSON separadamente, descomente a linha abaixo.
+        // carregarDashboardAsync();
 
         console.log('✅ Dashboard Cliente inicializado.');
     }

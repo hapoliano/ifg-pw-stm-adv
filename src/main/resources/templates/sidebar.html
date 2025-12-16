@@ -3,8 +3,12 @@
         <a href="/dashboard/master" class="nav-link">
             <i class="bi bi-speedometer2"></i> Dashboard
         </a>
+    {#else if usuario.perfil == 'CLIENTE'}
+        <a href="/dashboard/cliente" class="nav-link">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
     {#else}
-        <a href="/dashboard/advogado" class="nav-link">
+        <a href="/dashboard" class="nav-link">
             <i class="bi bi-grid-fill"></i> Dashboard
         </a>
     {/if}
@@ -15,9 +19,12 @@
         </a>
     {/if}
 
+    {#if usuario.perfil == 'MASTER'}
     <a href="/clientes" class="nav-link">
         <i class="bi bi-person-badge-fill"></i> Clientes
     </a>
+    {/if}
+
     <a href="/processos" class="nav-link">
         <i class="bi bi-folder2-open"></i> Processos
     </a>
