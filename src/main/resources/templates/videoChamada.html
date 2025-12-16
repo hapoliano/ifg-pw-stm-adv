@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vídeo Chamada - STM-ADV</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://unpkg.com/openvidu-browser@2.28.0/dist/openvidu-browser-2.28.0.min.js"></script>
+
+    <style>
+        /* ==================================== */
+        /* CSS PADRONIZADO (COPIADO DO DASHBOARD) */
+        /* ==================================== */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --light-bg: #f8f9fa;
+            --bs-body-bg: var(--light-bg);
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            height: 56px;
+        }
+
+        .navbar-brand img {
+            height: 35px;
+            filter: brightness(0) invert(1);
+            margin-top: -3px;
+        }
+        .navbar-brand span {
+            font-weight: 600;
+            font-size: 1.3rem;
+            margin-left: 0.5rem;
+        }
+
+        .sidebar {
+            background-color: var(--primary-color);
+            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+            padding-top: 1rem;
+            width: 250px;
+            position: fixed;
+            top: 56px;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1020;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s ease-in-out;
+        }
+        @media (max-width: 991.98px) {
+            .sidebar {
+                left: -250px;
+                top: 0;
+                min-height: 100vh;
+                padding-top: 4rem; /* Ajuste para o header mobile */
+            }
+            .sidebar.show { left: 0; }
+            .content-wrapper { margin-left: 0 !important; }
+        }
+
+        .sidebar a.nav-link {
+            color: rgba(255, 255, 255, 0.75);
+            padding: 0.8rem 1.5rem;
+            border-left: 4px solid transparent;
+        }
+        .sidebar a.nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: white;
+            border-left-color: var(--accent-color);
+        }
+        .sidebar a.nav-link.active {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: white;
+            border-left-color: var(--accent-color);
+        }
+
+        .content-wrapper {
+            margin-left: 250px;
+            padding: 2rem;
+            flex-grow: 1;
+        }
+
+        .page-title { /* Não usado diretamente aqui, mas mantido */
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+        }
+
+        .main-footer {
+            background-color: #ffffff;
+            color: var(--primary-color);
+            padding: 1rem 0;
+            margin-top: auto;
+            width: 100%;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.85rem;
+        }
+        @media (min-width: 993px) {
+            .main-footer .container-fluid { padding-left: 270px; }
+        }
+
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+
+        /* ==================================== */
+        /* ESTILOS ESPECÍFICOS DE VÍDEO (ADICIONAIS) */
+        /* ==================================== */
+        .video-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px); /* Ajuste para o padding e header/footer */
+            min-height: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .video-grid {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 5px;
+            background: #202020;
+            padding: 5px;
+            overflow: hidden;
+        }
+
+        .video-box {
+            background: #333;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            min-height: 150px;
+        }
+        .video-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .video-label {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            color: #fff;
+            background: rgba(0,0,0,0.6);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            z-index: 10;
+        }
+
+        .video-controls {
+            padding: 10px 0;
+            display: flex;
+            justify-content: center;
+            background: #fff;
+            border-top: 1px solid #eee;
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .chat-box {
+            height: 350px;
+            overflow-y: auto;
+            background: #fff;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <nav class="navbar navbar-expand-lg navbar-dark px-3">
+        <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <a class="navbar-brand d-flex align-items-center me-auto" href="/">
+            <img src="/img/ld.png" alt="Logo STM-ADV" class="me-2">
+            <span>STM-ADV</span>
+        </a>
+
+        <div class="navbar-nav align-items-center">
+            <span class="nav-link text-white me-3 d-none d-lg-block">
+                {#if usuario.perfil}
+                <span class="badge bg-info text-white ms-1 text-uppercase me-2">{usuario.perfil}</span>
+                {/if}
+                <i class="bi bi-person-circle me-1"></i>
+                {#if usuario}
+                    {usuario.nome ?: 'Usuário'}
+                {#else}
+                    <span>Carregando...</span>
+                {/if}
+            </span>
+        </div>
+    </nav>
+</header>
+
+<div class="d-flex flex-grow-1">
+    <aside class="sidebar collapse d-lg-block" id="sidebarNav">
+        <nav class="nav flex-column">
+            <a href="{#if usuario.perfil == 'MASTER'}/dashboard/master{#else}/dashboard{/if}" class="nav-link">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="/clientes" class="nav-link">
+                <i class="bi bi-people-fill"></i> Clientes
+            </a>
+            <a href="/processos" class="nav-link">
+                <i class="bi bi-folder2-open"></i> Processos
+            </a>
+            <a href="/agenda" class="nav-link">
+                <i class="bi bi-calendar-event"></i> Agenda
+            </a>
+            <a href="/videoChamada" class="nav-link active">
+                <i class="bi bi-camera-video"></i> Videochamada
+            </a>
+        </nav>
+        <div class="mt-auto">
+            <hr class="mx-3 border-secondary">
+            <a href="/perfil" class="nav-link">
+                <i class="bi bi-person-gear"></i> Meu Perfil
+            </a>
+            <a href="#" class="nav-link text-danger" onclick="fazerLogout(); return false;">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </aside>
+    <div class="sidebar-overlay d-lg-none" data-bs-toggle="collapse" data-bs-target="#sidebarNav"></div>
+
+
+    <main class="content-wrapper">
+        <div class="container-fluid py-4">
+            <h1 class="page-title">
+                <i class="bi bi-camera-video me-2"></i> Sessão de Vídeo: <span id="session-title">Aguardando...</span>
+            </h1>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm mb-4 video-container">
+                        <div id="video-grid" class="video-grid">
+                            <div class="col-12 text-center my-auto p-5 text-white">
+                                <p class="opacity-7">Aguardando conexão...</p>
+                            </div>
+                        </div>
+
+                        <div class="video-controls">
+                            <button id="join-btn" class="btn btn-success me-3"><i class="bi bi-play-circle"></i> Entrar na Sessão</button>
+                            <button id="leave-btn" class="btn btn-danger me-3" style="display: none;" disabled><i class="bi bi-telephone-x"></i> Sair</button>
+
+                            <button id="btnMic" class="btn btn-secondary me-2" disabled onclick="toggleMic()" title="Microfone"><i class="bi bi-mic"></i></button>
+                            <button id="btnCamera" class="btn btn-secondary me-2" disabled onclick="toggleCamera()" title="Câmera"><i class="bi bi-camera-video"></i></button>
+                            <button id="btnScreen" class="btn btn-secondary" disabled onclick="shareScreen()" title="Compartilhar Tela"><i class="bi bi-display"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 side-panel">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-secondary text-white"><i class="bi bi-people me-1"></i> Participantes Online</div>
+                        <ul class="list-group list-group-flush" id="participantList">
+                            <li class="list-group-item text-muted text-center"><small>Ninguém conectado</small></li>
+                        </ul>
+                    </div>
+
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-secondary text-white"><i class="bi bi-link me-1"></i> Link de Convite</div>
+                        <div class="card-body">
+                            <div class="input-group">
+                                <input type="text" id="inviteLink" class="form-control" value="https://meet.stm-adv.com/room-{usuario.id}" readonly>
+                                <button class="btn btn-outline-primary" onclick="copyLink()"><i class="bi bi-clipboard"></i></button>
+                            </div>
+                            <small class="text-muted">Compartilhe este link para convidar.</small>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm flex-grow-1">
+                        <div class="card-header bg-secondary text-white"><i class="bi bi-chat-dots me-1"></i> Chat da Sessão</div>
+                        <div id="chatMessages" class="chat-box">
+                            <div class="text-center text-muted"><small>Nenhuma mensagem ainda</small></div>
+                        </div>
+                        <div class="card-footer p-2">
+                            <div class="input-group">
+                                <input type="text" id="chatInput" class="form-control" placeholder="Digite uma mensagem..." onkeydown="if(event.key === 'Enter') sendMessage()">
+                                <button class="btn btn-primary" onclick="sendMessage()"><i class="bi bi-send"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<footer class="main-footer mt-auto">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                <p class="mb-0 small">&copy; <span id="footerYear">2024</span> STM-ADV. Todos os direitos reservados.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="/sobre" class="me-3 small">Sobre</a>
+                <a href="/contato" class="me-3 small">Contato</a>
+                <a href="/privacidade" class="small">Privacidade</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Funções de Logout e Sidebar
+    function fazerLogout() {
+        if (!confirm('Deseja realmente sair do sistema?')) return;
+        fetch('/login/logout', { method: 'POST' })
+            .then(() => window.location.href = '/login')
+            .catch(() => window.location.href = '/login');
+    }
+
+    // Configuração de Sidebar Mobile (Copida do Dashboard)
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('sidebarNav');
+        const overlay = document.querySelector('.sidebar-overlay');
+        if (sidebar) {
+            // Se o overlay não existir, cria um para o mobile
+            if (!overlay) {
+                const newOverlay = document.createElement('div');
+                newOverlay.className = 'sidebar-overlay d-lg-none';
+                newOverlay.setAttribute('data-bs-toggle', 'collapse');
+                newOverlay.setAttribute('data-bs-target', '#sidebarNav');
+                document.body.appendChild(newOverlay);
+                const overlayRef = newOverlay;
+            } else {
+                const overlayRef = overlay;
+            }
+
+            sidebar.addEventListener('show.bs.collapse', () => overlayRef.style.display = 'block');
+            sidebar.addEventListener('hide.bs.collapse', () => overlayRef.style.display = 'none');
+            overlayRef.addEventListener('click', () => {
+                const bsCollapse = bootstrap.Collapse.getInstance(sidebar);
+                if (bsCollapse) bsCollapse.hide();
+            });
+        }
+
+        // Ano do footer
+        document.getElementById('footerYear').textContent = new Date().getFullYear();
+    });
+
+
+    // ----------------------------------------------------
+    // LÓGICA DE VIDEOCHAMADA (OpenVidu)
+    // ----------------------------------------------------
+    const OV = new OpenVidu();
+    let session = null;
+    let publisher = null;
+    let micOn = true;
+    let cameraOn = true;
+
+    // Dados injetados pelo Qute
+    const USER_NAME = "{usuario.nome}";
+    const SESSION_ID = "Sessao_{usuario.id}";
+
+    document.getElementById('session-title').textContent = "Sala " + SESSION_ID;
+
+    document.getElementById('join-btn').addEventListener('click', joinSession);
+    document.getElementById('leave-btn').addEventListener('click', leaveSession);
+
+    // 1. Chamada ao Backend para obter Token
+    async function getToken() {
+        const res = await fetch('/video/api/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId: SESSION_ID, userName: USER_NAME })
+        });
+
+        if (!res.ok) {
+            // O backend (VideoChamadaService) agora lança ServiceException, que o Controller
+            // traduz para um JSON de erro.
+            const error = await res.json();
+            throw new Error(error.error || 'Falha ao obter token. Verifique as credenciais OpenVidu.');
+        }
+
+        const data = await res.json();
+        return data.token;
+    }
+
+    // 2. Conectar à Sessão (Lógica OpenVidu...)
+    async function joinSession() {
+        if (session) return;
+
+        document.getElementById('join-btn').disabled = true;
+
+        try {
+            const token = await getToken();
+
+            session = OV.initSession();
+
+            // Setup Listeners
+            session.on('streamCreated', event => {
+                const subscriber = session.subscribe(event.stream, undefined);
+                const clientData = JSON.parse(event.stream.connection.data).clientData;
+                addVideo(subscriber.stream.streamId, clientData, subscriber);
+                addParticipant(subscriber.stream.streamId, clientData);
+            });
+
+            session.on('streamDestroyed', event => {
+                removeVideo(event.stream.streamId);
+                removeParticipant(event.stream.streamId);
+            });
+
+            session.on('sessionDisconnected', event => {
+                if (event.reason !== 'disconnect') {
+                    console.warn('Sessão desconectada por motivo inesperado:', event.reason);
+                }
+                leaveSession();
+            });
+
+            // Listener de Chat (Signal)
+            session.on('signal:chat', event => {
+                const data = JSON.parse(event.data);
+                if (data.user !== USER_NAME) {
+                    addChatMessage(data.user, data.message);
+                }
+            });
+
+            await session.connect(token, { clientData: USER_NAME });
+
+            // Inicializa Publisher (seu vídeo)
+            publisher = OV.initPublisher(undefined, {
+                audioSource: undefined, videoSource: undefined, publishAudio: true, publishVideo: true, mirror: false
+            });
+
+            session.publish(publisher);
+            addVideo(publisher.stream.streamId, USER_NAME + " (Você)", publisher);
+            addParticipant(publisher.stream.streamId, USER_NAME + " (Você)");
+
+            updateControls(true);
+            document.getElementById('join-btn').style.display = 'none';
+            document.getElementById('leave-btn').style.display = 'inline-block';
+
+        } catch (error) {
+            console.error('Erro ao conectar à sessão:', error.message);
+            alert('Falha ao conectar: ' + error.message);
+            updateControls(false);
+            document.getElementById('join-btn').style.display = 'inline-block';
+            document.getElementById('leave-btn').style.display = 'none';
+        }
+    }
+
+    function leaveSession() {
+        if (session) { session.disconnect(); }
+        session = null;
+        publisher = null;
+        document.getElementById('video-grid').innerHTML = '<div class="col-12 text-center my-auto p-5 text-white"><p class="opacity-7">Aguardando conexão...</p></div>';
+        document.getElementById('participantList').innerHTML = '<li class="list-group-item text-muted text-center"><small>Ninguém conectado</small></li>';
+        document.getElementById('chatMessages').innerHTML = '<div class="text-center text-muted"><small>Nenhuma mensagem ainda</small></div>';
+        updateControls(false);
+        document.getElementById('join-btn').style.display = 'inline-block';
+        document.getElementById('join-btn').disabled = false;
+        document.getElementById('leave-btn').style.display = 'none';
+    }
+
+    function toggleMic() {
+        micOn = !micOn;
+        publisher.publishAudio(micOn);
+        document.getElementById('btnMic').innerHTML = micOn ? '<i class="bi bi-mic"></i>' : '<i class="bi bi-mic-mute"></i>';
+        document.getElementById('btnMic').classList.toggle('btn-secondary', micOn);
+        document.getElementById('btnMic').classList.toggle('btn-warning', !micOn);
+    }
+
+    function toggleCamera() {
+        cameraOn = !cameraOn;
+        publisher.publishVideo(cameraOn);
+        document.getElementById('btnCamera').innerHTML = cameraOn ? '<i class="bi bi-camera-video"></i>' : '<i class="bi bi-camera-video-off"></i>';
+        document.getElementById('btnCamera').classList.toggle('btn-secondary', cameraOn);
+        document.getElementById('btnCamera').classList.toggle('btn-warning', !cameraOn);
+    }
+
+    function shareScreen() {
+        alert('Compartilhamento de tela em desenvolvimento. Requer lógica mais complexa no OpenVidu.');
+    }
+
+    function sendMessage() {
+        const chatInput = document.getElementById('chatInput');
+        const message = chatInput.value.trim();
+
+        if (message && session) {
+            const signalOptions = {
+                data: JSON.stringify({ user: USER_NAME, message: message }),
+                type: 'chat',
+                to: [],
+            };
+            session.signal(signalOptions);
+            chatInput.value = '';
+            addChatMessage("Você", message);
+        }
+    }
+
+    function addChatMessage(user, message) {
+        const chatBox = document.getElementById('chatMessages');
+        const isSelf = user === "Você";
+        const msgClass = isSelf ? 'text-end' : 'text-start';
+        const userText = isSelf ? '' : `<small class="fw-bold">${user}:</small>`;
+
+        const initialMessage = chatBox.querySelector('.text-muted');
+        if (initialMessage) { initialMessage.parentElement.remove(); }
+
+        const newMsg = document.createElement('div');
+        newMsg.className = `p-1 ${msgClass}`;
+        // Uso de 'bg-primary' e 'bg-light' para diferenciar as mensagens no chat
+        newMsg.innerHTML = `${userText} <p class="mb-0 ${isSelf ? 'bg-primary text-white p-2 d-inline-block rounded' : 'bg-light p-2 d-inline-block rounded'}">${message}</p>`;
+        chatBox.appendChild(newMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Funções de manipulação de vídeo e participantes (mantidas)
+    function addVideo(streamId, userData, streamManager) {
+        const initialMessage = document.querySelector('#video-grid .text-white');
+        if (initialMessage) { initialMessage.parentElement.remove(); }
+
+        const videoId = 'video-' + streamId;
+        let videoBox = document.getElementById(videoId);
+
+        if (!videoBox) {
+            videoBox = document.createElement('div');
+            videoBox.className = 'video-box';
+            videoBox.id = videoId;
+            videoBox.setAttribute('data-stream-id', streamId);
+            document.getElementById('video-grid').appendChild(videoBox);
+        }
+
+        streamManager.addVideoElement(videoBox.id);
+
+        const label = document.createElement('div');
+        label.className = 'video-label';
+        label.textContent = userData;
+        videoBox.appendChild(label);
+    }
+
+    function removeVideo(streamId) {
+        const element = document.querySelector(`.video-box[data-stream-id='${streamId}']`);
+        if (element) { element.remove(); }
+        if (document.getElementById('video-grid').children.length === 0) {
+            document.getElementById('video-grid').innerHTML = '<div class="col-12 text-center my-auto p-5 text-white"><p class="opacity-7">Aguardando conexão...</p></div>';
+        }
+    }
+
+    function addParticipant(streamId, name) {
+        const list = document.getElementById('participantList');
+        const initialItem = list.querySelector('.text-muted');
+        if (initialItem) initialItem.remove();
+
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+        listItem.id = 'participant-' + streamId;
+        listItem.innerHTML = `<i class="bi bi-person-circle me-2"></i> ${name}`;
+        list.appendChild(listItem);
+    }
+
+    function removeParticipant(connectionId) {
+        const item = document.getElementById('participant-' + connectionId);
+        if (item) { item.remove(); }
+        if (document.getElementById('participantList').children.length === 0) {
+            document.getElementById('participantList').innerHTML = '<li class="list-group-item text-muted text-center"><small>Ninguém conectado</small></li>';
+        }
+    }
+
+    function updateControls(isConnected) {
+        document.getElementById('leave-btn').disabled = !isConnected;
+        document.getElementById('btnMic').disabled = !isConnected;
+        document.getElementById('btnCamera').disabled = !isConnected;
+        document.getElementById('btnScreen').disabled = !isConnected;
+        micOn = true; cameraOn = true;
+        document.getElementById('btnMic').innerHTML = '<i class="bi bi-mic"></i>';
+        document.getElementById('btnCamera').innerHTML = '<i class="bi bi-camera-video"></i>';
+        document.getElementById('btnMic').className = 'btn btn-secondary me-2';
+        document.getElementById('btnCamera').className = 'btn btn-secondary me-2';
+    }
+
+    function copyLink() {
+        const link = document.getElementById('inviteLink');
+        link.select();
+        link.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+        alert("Link copiado: " + link.value);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processos - STM-ADV</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        /* ==================================== */
+        /* CSS PADRONIZADO (UNIFICADO) */
+        /* ==================================== */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --light-bg: #f8f9fa;
+            --bs-body-bg: var(--light-bg);
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        /* HEADER PADRONIZADO */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            height: 56px;
+        }
+
+        .navbar-brand img {
+            height: 35px;
+            filter: brightness(0) invert(1);
+            margin-top: -3px;
+        }
+        .navbar-brand span {
+            font-weight: 600;
+            font-size: 1.3rem;
+            margin-left: 0.5rem;
+        }
+
+        /* SIDEBAR PADRONIZADA */
+        .sidebar {
+            background-color: var(--primary-color);
+            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+            padding-top: 1rem;
+            width: 250px;
+            position: fixed;
+            top: 56px;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1020;
+            transition: left 0.3s ease-in-out;
+        }
+        .sidebar a.nav-link {
+            color: rgba(255, 255, 255, 0.75);
+            padding: 0.8rem 1.5rem;
+            border-left: 4px solid transparent;
+        }
+        .sidebar a.nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: white;
+            border-left-color: var(--accent-color);
+        }
+        .sidebar a.nav-link.active {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: white;
+            border-left-color: var(--accent-color);
+        }
+        .content-wrapper {
+            margin-left: 250px; /* Margem padrão para telas com sidebar */
+            padding: 2rem;
+            flex-grow: 1;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { left: -250px; top: 0; height: 100vh; z-index: 1040; }
+            .content-wrapper { margin-left: 0; }
+        }
+
+        /* FOOTER PADRONIZADO */
+        .main-footer {
+            background-color: #ffffff;
+            color: var(--primary-color);
+            padding: 1rem 0;
+            margin-top: auto;
+            width: 100%;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.85rem;
+        }
+        @media (min-width: 993px) {
+            .main-footer .container-fluid { padding-left: 270px; }
+        }
+
+        /* TÍTULO E CARDS PADRONIZADOS */
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+        }
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            color: var(--primary-color);
+        }
+        .card-header i {
+            margin-right: .6rem;
+            color: var(--accent-color);
+            font-size: 1.1rem;
+        }
+
+        /* TABELA PADRONIZADA */
+        .table thead th {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+        .table tbody tr td {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+        .table-hover tbody tr:hover { background-color: rgba(52, 152, 219, 0.05); }
+
+        /* BADGES PADRONIZADOS */
+        .badge.bg-gradient-success { background-image: linear-gradient(310deg, var(--success-color), #27ae60) !important; }
+        .badge.bg-gradient-warning { background-image: linear-gradient(310deg, var(--warning-color), #e67e22) !important; }
+        .badge.bg-gradient-secondary { background-image: linear-gradient(310deg, #8392ab, #6c757d) !important; }
+        .badge.bg-gradient-danger { background-image: linear-gradient(310deg, var(--danger-color), #c0392b) !important; }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <nav class="navbar navbar-expand-lg navbar-dark px-3">
+        <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <a class="navbar-brand d-flex align-items-center me-auto" href="/">
+            <img src="/assets/img/logo.png" alt="Logo STM-ADV" class="me-2">
+            <span>STM-ADV</span>
+        </a>
+
+        <div class="navbar-nav align-items-center">
+            <span class="nav-link text-white me-3 d-none d-lg-block">
+                <i class="bi bi-person-circle me-1"></i>
+                {#if usuario}
+                    {usuario.nome ?: 'Usuário'}
+                    <small class="badge bg-light text-dark ms-1 text-uppercase">{usuario.perfil ?: 'ADVOGADO'}</small>
+                {#else}
+                    <span>Carregando...</span>
+                {/if}
+            </span>
+        </div>
+    </nav>
+</header>
+
+<div class="d-flex flex-grow-1">
+    <aside class="sidebar collapse d-lg-block" id="sidebarNav">
+        <nav class="nav flex-column flex-grow-1">
+
+            <a href="{#if usuario.perfil == 'MASTER'}/dashboard-master{#else if usuario.perfil == 'ADVOGADO'}/dashboard{#else}/dashboard-cliente{/if}" class="nav-link">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+
+            {#if usuario.perfil == 'MASTER' || usuario.perfil == 'ADVOGADO'}
+            <a href="/clientes" class="nav-link">
+                <i class="bi bi-people"></i> Clientes
+            </a>
+            <a href="/processos" class="nav-link active">
+                <i class="bi bi-journal-text"></i> Processos
+            </a>
+            <a href="/agenda" class="nav-link">
+                <i class="bi bi-calendar-check"></i> Agenda
+            </a>
+            {/if}
+
+            {#if usuario.perfil == 'MASTER'}
+            <a href="/gestao-usuarios" class="nav-link">
+                <i class="bi bi-person-gear"></i> Gestão Usuários
+            </a>
+            <a href="/auditoria" class="nav-link">
+                <i class="bi bi-shield-lock"></i> Auditoria
+            </a>
+            {/if}
+
+            <a href="/video-chamada" class="nav-link">
+                <i class="bi bi-camera-video"></i> Vídeo Chamada
+            </a>
+
+        </nav>
+
+        <div class="mt-auto">
+            <hr class="mx-3 border-secondary">
+            <a href="/perfil" class="nav-link">
+                <i class="bi bi-person-gear"></i> Meu Perfil
+            </a>
+            <a href="#" class="nav-link text-white" onclick="fazerLogout(); return false;">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay d-lg-none" data-bs-toggle="collapse" data-bs-target="#sidebarNav"></div>
+
+    <main class="content-wrapper">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="page-title mb-0">
+                <i class="bi bi-folder2-open"></i>
+                Gerenciar Processos
+            </h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProcesso" onclick="novoProcesso()">
+                <i class="bi bi-plus-circle me-2"></i>Novo Processo
+            </button>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6 mb-3">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar processos por Número ou Cliente..." onkeyup="filtrarProcessos()">
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <select id="statusFilter" class="form-select" onchange="filtrarProcessos()">
+                    <option value="">Todos os status</option>
+                    <option value="EM_ANDAMENTO">Em Andamento</option>
+                    <option value="CONCLUIDO">Concluído</option>
+                    <option value="ARQUIVADO">Arquivado</option>
+                    <option value="SUSPENSO">Suspenso</option>
+                    <option value="CANCELADO">Cancelado</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <i class="bi bi-list-ul me-2"></i> Lista de Processos
+            </div>
+            <div class="card-body px-0 pt-0 pb-2">
+                <div class="table-responsive p-0">
+                    <table class="table table-hover align-items-center mb-0">
+                        <thead>
+                        <tr>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3">Número/Título</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Cliente</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Advogado</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Prazo Final</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2" width="120">Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tabelaProcessos">
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Carregando...</span>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<footer class="main-footer mt-auto">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                <p class="mb-0 small">&copy; <span id="footerYear">2025</span> STM-ADV. Todos os direitos reservados.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="/sobre" class="me-3 small">Sobre</a>
+                <a href="/contato" class="me-3 small">Contato</a>
+                <a href="/privacidade" class="small">Privacidade</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div class="modal fade" id="modalProcesso" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalProcessoLabel">Novo Processo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formProcesso">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="processoNumero" class="form-label">Número do Processo</label>
+                            <input type="text" class="form-control" id="processoNumero" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="processoTitulo" class="form-label">Título</label>
+                            <input type="text" class="form-control" id="processoTitulo" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="processoDescricao" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="processoDescricao" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="processoCliente" class="form-label">Cliente</label>
+                            <select class="form-select" id="processoCliente" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="processoAdvogado" class="form-label">Advogado Responsável</label>
+                            <select class="form-select" id="processoAdvogado">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="processoStatus" class="form-label">Status</label>
+                            <select class="form-select" id="processoStatus" required>
+                                <option value="EM_ANDAMENTO">Em Andamento</option>
+                                <option value="CONCLUIDO">Concluído</option>
+                                <option value="ARQUIVADO">Arquivado</option>
+                                <option value="SUSPENSO">Suspenso</option>
+                                <option value="CANCELADO">Cancelado</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarProcesso()">Salvar Processo</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let todosProcessos = [];
+    let processoEditandoId = null;
+
+    // Função de fetch padronizada para comunicação com o backend
+    function fetchAutenticado(url, options = {}) {
+        return fetch(url, {
+            ...options,
+            credentials: 'include' // Essencial para cookies de sessão/autenticação
+        });
+    }
+
+    // Função de Logout padronizada
+    function fazerLogout() {
+        if (!confirm('Deseja realmente sair do sistema?')) return;
+        fetch('/login/logout', { method: 'POST' })
+            .then(() => window.location.href = '/login')
+            .catch(() => {
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                window.location.href = '/login';
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        carregarProcessos();
+
+        // Inicialização de layout (sidebar, footer, etc.)
+        const sidebar = document.getElementById('sidebarNav');
+        const overlay = document.querySelector('.sidebar-overlay');
+        if (sidebar && overlay) {
+            sidebar.addEventListener('show.bs.collapse', () => overlay.style.display = 'block');
+            sidebar.addEventListener('hide.bs.collapse', () => overlay.style.display = 'none');
+            overlay.addEventListener('click', () => {
+                const bsCollapse = bootstrap.Collapse.getInstance(sidebar);
+                if (bsCollapse) bsCollapse.hide();
+            });
+        }
+        if(document.getElementById('footerYear')) {
+            document.getElementById('footerYear').textContent = new Date().getFullYear();
+        }
+    });
+
+    // ----------------------------------------------------
+    // LÓGICA DE COMUNICAÇÃO PARA LISTAGEM
+    // ----------------------------------------------------
+    async function carregarProcessos() {
+        try {
+            // Endpoint corrigido: /processos/api
+            const response = await fetchAutenticado('/processos/api');
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error('Erro: ' + response.status);
+            }
+
+            todosProcessos = await response.json();
+            filtrarProcessos(); // Exibe todos inicialmente
+        } catch (error) {
+            console.error('Erro ao carregar processos:', error);
+            document.getElementById('tabelaProcessos').innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-danger py-4">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Erro ao carregar processos. Verifique o console.
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    // ----------------------------------------------------
+    // LÓGICA DE EXIBIÇÃO E FILTRAGEM
+    // ----------------------------------------------------
+    function atualizarTabela(processos) {
+        const tbody = document.getElementById('tabelaProcessos');
+        if (!processos || processos.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">
+                        <i class="bi bi-folder-x" style="font-size: 3rem;"></i>
+                        <p class="mt-2 mb-0">Nenhum processo encontrado</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = processos.map(processo => {
+            let statusClass;
+            let statusText = processo.status;
+
+            switch(processo.status) {
+                case 'EM_ANDAMENTO': statusClass = 'bg-gradient-warning'; break;
+                case 'CONCLUIDO': statusClass = 'bg-gradient-success'; break;
+                case 'CANCELADO': statusClass = 'bg-gradient-danger'; break;
+                default: statusClass = 'bg-gradient-secondary'; break;
+            }
+
+            // Lógica simples para verificar atraso no prazo
+            let prazoInfo = processo.prazoFinal || '-';
+            if (processo.prazoFinal && new Date(processo.prazoFinal) < new Date() && processo.status === 'EM_ANDAMENTO') {
+                prazoInfo = `<span class="text-danger fw-bold">${processo.prazoFinal} (Atrasado)</span>`;
+            }
+
+            return `
+                <tr>
+                    <td class="ps-3 text-sm">
+                        <p class="fw-bold mb-0">${processo.numeroProcesso || 'N/A'}</p>
+                        <small class="text-muted">${processo.titulo || '-'}</small>
+                    </td>
+                    <td class="text-xs">${processo.cliente || '-'}</td>
+                    <td class="text-xs">${processo.advogadoResponsavel || '-'}</td>
+                    <td><span class="badge ${statusClass}">${statusText.replace('_', ' ')}</span></td>
+                    <td class="text-xs">${prazoInfo}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="/processodetalhe/${processo.id}" class="btn btn-outline-info" title="Ver Detalhes">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <button class="btn btn-outline-primary" onclick="editarProcesso(${processo.id})" title="Editar" data-bs-toggle="modal" data-bs-target="#modalProcesso">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function filtrarProcessos() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        const processosFiltrados = todosProcessos.filter(processo => {
+            const matchesSearch =
+                (processo.numeroProcesso && processo.numeroProcesso.toLowerCase().includes(searchTerm)) ||
+                (processo.titulo && processo.titulo.toLowerCase().includes(searchTerm)) ||
+                (processo.cliente && processo.cliente.toLowerCase().includes(searchTerm));
+
+            const matchesStatus = !statusFilter || processo.status === statusFilter;
+
+            return matchesSearch && matchesStatus;
+        });
+
+        atualizarTabela(processosFiltrados);
+    }
+
+    // ----------------------------------------------------
+    // FUNÇÕES DE MODAL (CRUD)
+    // ----------------------------------------------------
+    function novoProcesso() {
+        processoEditandoId = null;
+        document.getElementById('modalProcessoLabel').textContent = 'Novo Processo';
+        document.getElementById('formProcesso').reset();
+        // TODO: Lógica para carregar advogados e clientes nos selects
+    }
+
+    async function editarProcesso(id) {
+        // Chamada à API para carregar dados de edição
+        try {
+            const response = await fetchAutenticado(`/processos/api/${id}`);
+            if (!response.ok) throw new Error('Falha ao carregar processo');
+            const processo = await response.json();
+
+            processoEditandoId = id;
+            document.getElementById('modalProcessoLabel').textContent = 'Editar Processo';
+
+            // Preenchimento dos campos do modal
+            document.getElementById('processoNumero').value = processo.numeroProcesso || '';
+            document.getElementById('processoTitulo').value = processo.titulo || '';
+            document.getElementById('processoDescricao').value = processo.descricao || '';
+            document.getElementById('processoStatus').value = processo.status;
+            // TODO: Preencher outros campos DTO (clienteId, advogadoId, etc.)
+
+        } catch (error) {
+            console.error(error);
+            alert('Erro ao carregar dados do processo para edição.');
+            // Fechar modal ou impedir a abertura se falhar
+        }
+    }
+
+    async function salvarProcesso() {
+        // Coleta de dados do formulário
+        const dados = {
+            numeroProcesso: document.getElementById('processoNumero').value,
+            titulo: document.getElementById('processoTitulo').value,
+            descricao: document.getElementById('processoDescricao').value,
+            status: document.getElementById('processoStatus').value,
+            // TODO: Incluir clienteId, advogadoId, e outros campos
+        };
+
+        const method = processoEditandoId ? 'PUT' : 'POST';
+        const url = processoEditandoId ? `/processos/api/${processoEditandoId}` : '/processos/api';
+
+        try {
+            const response = await fetchAutenticado(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            if (response.ok) {
+                alert(`Processo ${processoEditandoId ? 'atualizado' : 'criado'} com sucesso!`);
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalProcesso'));
+                modal.hide();
+                carregarProcessos(); // Recarrega a lista
+            } else {
+                const errorData = await response.json();
+                alert('Erro ao salvar processo: ' + (errorData.error || response.statusText));
+            }
+        } catch (error) {
+            console.error('Erro de comunicação:', error);
+            alert('Erro de comunicação ao tentar salvar o processo.');
+        }
+    }
+</script>
+</body>
+</html>

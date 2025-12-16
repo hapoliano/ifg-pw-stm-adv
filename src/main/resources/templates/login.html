@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - STM-ADV</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --light-bg: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+        }
+
+        /* INÍCIO DO ESTILO PADRONIZADO DO HEADER */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .navbar-brand img {
+            height: 45px;
+            filter: brightness(0) invert(1);
+        }
+        /* FIM DO ESTILO PADRONIZADO DO HEADER */
+
+        .login-container {
+            max-width: 500px;
+            margin: 3rem auto;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            border-radius: 12px 12px 0 0 !important;
+            text-align: center;
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-right: none;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--accent-color), #2980b9);
+            border: none;
+            color: white;
+            padding: 0.75rem;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+            background: linear-gradient(135deg, #2980b9, var(--accent-color));
+        }
+
+        .quick-access {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #ddd;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+            position: relative;
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .main-footer {
+            background-color: var(--primary-color);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+
+        .main-footer a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .main-footer a:hover {
+            color: white;
+        }
+
+        #alert-message {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/img/ld.png" alt="Logo STM-ADV" class="me-2" onerror="this.style.display='none'">
+                <span>STM-ADV</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="/">Início</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/cadastro">Cadastrar</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<br><br><br>
+
+<main class="container">
+    <div class="login-container">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-box-arrow-in-right" style="font-size: 2.5rem; margin-bottom: 0.5rem;"></i>
+                <h2>Acesse sua Conta</h2>
+                <p class="mb-0 mt-2" style="opacity: 0.9;">Entre no sistema de gestão advocatícia</p>
+            </div>
+            <div class="card-body p-4">
+                <div id="alert-message" class="alert" role="alert"></div>
+
+                <form id="formLogin">
+                    <div class="mb-3">
+                        <label for="email" class="form-label"><i class="bi bi-envelope"></i> E-mail</label>
+                        <div class="input-group">
+                            <input type="email" class="form-control" id="email" placeholder="seu@email.com" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="senha" class="form-label"><i class="bi bi-lock"></i> Senha</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="senha" placeholder="Digite sua senha" required>
+                        </div>
+                    </div>
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-login"><i class="bi bi-box-arrow-in-right me-2"></i>Entrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<br><br>
+
+<footer class="main-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 text-start">
+                <p class="mb-1">&copy; 2025 STM-ADV. Todos os direitos reservados.</p>
+                <small style="opacity: 0.7;">Versão 1.0.0</small>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="/sobre" class="me-3">Sobre</a>
+                <a href="/contato" class="me-3">Contato</a>
+                <a href="/privacidade">Privacidade</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const form = document.getElementById('formLogin');
+    const alertDiv = document.getElementById('alert-message');
+
+    // Função padronizada para exibir alertas
+    function updateAlert(type, message) {
+        alertDiv.textContent = message;
+        alertDiv.classList.remove('alert-success', 'alert-danger');
+        if (type === 'success') {
+            alertDiv.classList.add('alert-success');
+        } else if (type === 'error') {
+            alertDiv.classList.add('alert-danger');
+        }
+        alertDiv.style.display = 'block';
+    }
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        alertDiv.style.display = 'none';
+
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+
+        try {
+            const response = await fetch('/login/logar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            });
+
+            let data = { success: false, mensagem: 'Erro desconhecido. Verifique o console.' };
+
+            if (response.headers.get('content-type')?.includes('application/json')) {
+                data = await response.json();
+            } else if (response.status === 404) {
+                data.mensagem = 'Erro 404: Rota de login não encontrada. Tente reiniciar o servidor.';
+            } else {
+                data.mensagem = `Erro de conexão. Status: ${response.status}.`;
+            }
+
+
+            if (response.ok) {
+                // Sucesso
+                updateAlert('success', data.mensagem || 'Login efetuado com sucesso!');
+                setTimeout(() => window.location.href = '/dashboard', 500);
+            } else {
+                // Falha
+                updateAlert('error', data.mensagem || 'Erro ao efetuar login.');
+            }
+        } catch (err) {
+            console.error('Erro de rede/conexão:', err);
+            updateAlert('error', 'Não foi possível conectar ao servidor (Erro de rede).');
+        }
+    });
+</script>
+
+</body>
+</html>

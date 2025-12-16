@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhe do Processo - STM-ADV</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        /* ==================================== */
+        /* CSS PADRONIZADO (UNIFICADO) */
+        /* ==================================== */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --light-bg: #f8f9fa;
+            --bs-body-bg: var(--light-bg);
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        /* HEADER PADRONIZADO */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            height: 56px;
+        }
+
+        .navbar-brand img {
+            height: 35px;
+            filter: brightness(0) invert(1);
+            margin-top: -3px;
+        }
+        .navbar-brand span {
+            font-weight: 600;
+            font-size: 1.3rem;
+            margin-left: 0.5rem;
+        }
+
+        /* FOOTER PADRONIZADO (Corrigido para telas sem sidebar) */
+        .main-footer {
+            background-color: #ffffff;
+            color: var(--primary-color);
+            padding: 1rem 0;
+            margin-top: auto;
+            width: 100%;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.85rem;
+        }
+        /* Não precisa de padding-left alto, pois não tem sidebar */
+        .main-footer .container-fluid { padding-left: 1rem; padding-right: 1rem; }
+
+        /* TELA DE DETALHES (SEM SIDEBAR) */
+        .content-full {
+            /* ESTE É O CONTAINER PRINCIPAL DA TELA SEM SIDEBAR */
+            padding: 2rem;
+            flex-grow: 1;
+            margin-left: 0; /* Garante que não há margem de sidebar */
+        }
+
+        /* TÍTULO E CARDS PADRONIZADOS */
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+        }
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            color: var(--primary-color);
+        }
+        .processo-header {
+            padding: 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border-top-left-radius: 0.75rem;
+            border-top-right-radius: 0.75rem;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: .5em .9em;
+            font-size: 0.9em;
+            line-height: 1;
+            border-radius: 0.5rem;
+            font-weight: bold;
+        }
+        .badge.em-andamento { background-image: linear-gradient(310deg, var(--warning-color), #e67e22) !important; color: white !important; }
+        .badge.concluido { background-image: linear-gradient(310deg, var(--success-color), #27ae60) !important; color: white !important; }
+        .badge.arquivado { background-image: linear-gradient(310deg, #8392ab, #6c757d) !important; color: white !important; }
+        .badge.suspenso { background-image: linear-gradient(310deg, #3498db, #2980b9) !important; color: white !important; }
+        .badge.cancelado { background-image: linear-gradient(310deg, var(--danger-color), #c0392b) !important; color: white !important; }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <nav class="navbar navbar-expand-lg navbar-dark px-3">
+        <a class="navbar-brand d-flex align-items-center me-auto" href="/">
+            <img src="/assets/img/logo.png" alt="Logo STM-ADV" class="me-2">
+            <span>STM-ADV</span>
+        </a>
+
+        <div class="navbar-nav align-items-center">
+            <span class="nav-link text-white me-3">
+                <i class="bi bi-person-circle me-1"></i>
+                {#if usuario}
+                    {usuario.nome ?: 'Usuário'}
+                    <small class="badge bg-light text-dark ms-1 text-uppercase">{usuario.perfil ?: 'ADVOGADO'}</small>
+                {#else}
+                    <span>Carregando...</span>
+                {/if} </span>
+        </div>
+    </nav>
+</header>
+
+<main class="content-full">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="page-title mb-1">
+                    <i class="bi bi-folder2-open me-2"></i>Detalhe do Processo
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="/templates/dashboardAdvogado">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="/processos">Processos</a></li>
+                        <li class="breadcrumb-item active">Detalhe</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/processos" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Voltar
+                </a>
+                <button class="btn btn-warning" onclick="abrirModalStatus()">
+                    <i class="bi bi-arrow-repeat me-2"></i>Mudar Status
+                </button>
+                {#if usuario.perfil == 'MASTER' || usuario.perfil == 'ADVOGADO'}
+                <button class="btn btn-danger" onclick="excluirProcesso({processo.id})">
+                    <i class="bi bi-trash me-2"></i>Excluir
+                </button>
+                {/if} </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="processo-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h3 class="mb-2 text-warning">{processo.numeroProcesso ?: 'NÚMERO NÃO REGISTRADO'}</h3>
+                                <h4 class="mb-1 text-white">{processo.titulo}</h4>
+                                <p class="mb-0 opacity-75">Cliente: {processo.cliente.nome ?: 'Não Definido'}</p>
+                            </div>
+                            <span id="statusProcesso" class="badge status-badge text-uppercase fs-6 {processo.status.toLowerCase().replace('_', '-')}">
+                                {processo.status.replace('_', ' ')}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="text-primary mb-3"><i class="bi bi-card-text me-2"></i> Descrição Detalhada</h5>
+                        <p class="mb-4">{processo.descricao}</p>
+
+                        <h5 class="text-primary mb-3"><i class="bi bi-info-circle me-2"></i> Detalhes Jurídicos</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <strong>Tipo:</strong> <div>{processo.tipo ?: '-'}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong>Área:</strong> <div>{processo.area ?: '-'}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong>Tribunal:</strong> <div>{processo.tribunal ?: '-'}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong>Vara/Comarca:</strong> <div>{processo.vara ?: '-'} / {processo.comarca ?: '-'}</div>
+                            </div>
+                        </div>
+
+                        <h5 class="text-primary mt-3 mb-3"><i class="bi bi-journal-text me-2"></i> Observações</h5>
+                        <p class="text-muted">{processo.observacoes ?: 'Nenhuma observação relevante.'}</p>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="bi bi-calendar-event me-2"></i> Últimos Eventos
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-0">Listagem de eventos de andamento do processo (Audiências, prazos, etc.)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="bi bi-person-badge me-2"></i> Envolvidos
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Advogado Responsável:</strong>
+                            <div>{processo.advogadoResponsavel.nome ?: 'Não Atribuído'}</div>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Advogado Email:</strong>
+                            <div>{processo.advogadoResponsavel.email ?: '-'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-clock me-2"></i> Datas Importantes</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Data de Abertura:</strong> <div>{processo.dataAbertura ?: 'Não informada'}</div>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Prazo Final:</strong>
+                            <div class="{#if processo.prazoFinal && processo.isAtrasado}text-danger fw-bold{#else}text-success{/if}">
+                                {processo.prazoFinal ?: 'Não definido'}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Data de Distribuição:</strong> <div>{processo.dataDistribuicao ?: 'Não informada'}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="main-footer mt-auto">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                <p class="mb-0 small">&copy; <span id="footerYear">2025</span> STM-ADV. Todos os direitos reservados.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="/sobre" class="me-3 small">Sobre</a>
+                <a href="/contato" class="me-3 small">Contato</a>
+                <a href="/privacidade" class="small">Privacidade</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div class="modal fade" id="modalStatus" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Atualizar Status do Processo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Selecione o novo status para o processo **{processo.numeroProcesso ?: 'N/A'} - {processo.titulo ?: 'Sem Título'}**:</p>
+                <div class="mb-3">
+                    <label for="novoStatus" class="form-label">Novo Status</label>
+                    <select class="form-select" id="novoStatus">
+                        <option value="EM_ANDAMENTO" {processo.status == 'EM_ANDAMENTO' ? 'selected' : ''}>Em Andamento</option>
+                        <option value="CONCLUIDO" {processo.status == 'CONCLUIDO' ? 'selected' : ''}>Concluído</option>
+                        <option value="ARQUIVADO" {processo.status == 'ARQUIVADO' ? 'selected' : ''}>Arquivado</option>
+                        <option value="SUSPENSO" {processo.status == 'SUSPENSO' ? 'selected' : ''}>Suspenso</option>
+                        <option value="CANCELADO" {processo.status == 'CANCELADO' ? 'selected' : ''}>Cancelado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarNovoStatus({processo.id})">Salvar Novo Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Função de fetch padronizada e lógica de comunicação (mantida da correção anterior)
+    function fetchAutenticado(url, options = {}) {
+        return fetch(url, {
+            ...options,
+            credentials: 'include'
+        });
+    }
+
+    // Inicialização do Footer
+    document.addEventListener('DOMContentLoaded', function() {
+        if(document.getElementById('footerYear')) {
+            document.getElementById('footerYear').textContent = new Date().getFullYear();
+        }
+    });
+
+    // Abrir modal de status
+    function abrirModalStatus() {
+        // Lógica para pré-selecionar o status atual
+        const statusElement = document.getElementById('statusProcesso');
+        if (statusElement) {
+            // Converte o texto do status para o valor do enum (ex: "Em Andamento" -> "EM_ANDAMENTO")
+            const currentStatusText = statusElement.textContent.trim().toUpperCase().replace(' ', '_');
+            document.getElementById('novoStatus').value = currentStatusText;
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('modalStatus'));
+        modal.show();
+    }
+
+    // ----------------------------------------------------
+    // LÓGICA DE COMUNICAÇÃO (ATUALIZAR STATUS)
+    // ----------------------------------------------------
+    async function salvarNovoStatus(processoId) {
+        const novoStatus = document.getElementById('novoStatus').value;
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalStatus'));
+
+        try {
+            // Endpoint deve ser algo como PUT /processodetalhe/{id}/status
+            const response = await fetchAutenticado(`/processodetalhe/${processoId}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: novoStatus })
+            });
+
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+
+            if (response.ok) {
+                modal.hide();
+                alert('Status atualizado com sucesso!');
+                window.location.reload();
+            } else {
+                const errorData = await response.json();
+                alert('Erro ao atualizar status: ' + (errorData.error || response.statusText));
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar status:', error);
+            alert('Erro de comunicação ao atualizar status');
+        }
+    }
+
+    // ----------------------------------------------------
+    // LÓGICA DE COMUNICAÇÃO (EXCLUIR PROCESSO)
+    // ----------------------------------------------------
+    async function excluirProcesso(processoId) {
+        if (!confirm('ATENÇÃO! Tem certeza que deseja excluir este processo? Esta ação é irreversível.')) {
+            return;
+        }
+
+        try {
+            // Endpoint deve ser DELETE /processodetalhe/{id}
+            const response = await fetchAutenticado(`/processodetalhe/${processoId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+
+            if (response.ok) {
+                alert('Processo excluído com sucesso!');
+                // Redireciona para a lista (CORRIGIDO)
+                window.location.href = '/processos';
+            } else {
+                const errorData = await response.json();
+                alert('Erro ao excluir processo: ' + (errorData.error || response.statusText));
+            }
+        } catch (error) {
+            console.error('Erro ao excluir processo:', error);
+            alert('Erro de comunicação ao excluir processo');
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<div class="list-group list-group-flush">
+    <a href="/templates/dashboardAdvogado" class="list-group-item list-group-item-action py-2 ripple">
+        <i class="bi bi-grid-fill me-2"></i> Dashboard
+    </a>
+
+    {#if usuario.perfil == 'MASTER'}
+    <a href="/gestao-usuarios" class="list-group-item list-group-item-action py-2 ripple">
+        <i class="bi bi-people-fill me-2"></i> Gestão de Usuários
+    </a>
+    {/if}
+
+    {#if usuario.perfil == 'MASTER' || usuario.perfil == 'ADVOGADO'}
+    <a href="/clientes" class="list-group-item list-group-item-action py-2 ripple">
+        <i class="bi bi-person-badge-fill me-2"></i> Meus Clientes
+    </a>
+    <a href="/processos" class="list-group-item list-group-item-action py-2 ripple">
+        <i class="bi bi-folder-fill me-2"></i> Processos
+    </a>
+    {/if}
+
+    <a href="/agenda" class="list-group-item list-group-item-action py-2 ripple">
+        <i class="bi bi-calendar-event-fill me-2"></i> Agenda
+    </a>
+
+    <a href="/video" class="list-group-item list-group-item-action py-2 ripple">
+        <i class="bi bi-camera-video-fill me-2"></i> Video Chamada
+    </a>
+
+    {#if usuario.perfil == 'MASTER'}
+    <a href="/auditoria" class="list-group-item list-group-item-action py-2 ripple">
+        <i class="bi bi-shield-lock-fill me-2"></i> Auditoria / Log
+    </a>
+    {/if}
+
+    <a href="/login/logout" class="list-group-item list-group-item-action py-2 ripple text-danger" style="position: absolute; bottom: 0; width: 100%;">
+        <i class="bi bi-box-arrow-right me-2"></i> Sair do Sistema
+    </a>
+</div>

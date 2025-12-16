@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - STM-ADV</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <style>
+        /* CSS PADRONIZADO (UNIFICADO) */
+        :root {
+            --primary-color: #2c3e50; /* Cinza Escuro (Sidebar/Header) */
+            --secondary-color: #34495e; /* Cinza Escuro 2 */
+            --accent-color: #3498db; /* Azul */
+            --light-bg: #f8f9fa;
+            --bs-body-bg: var(--light-bg);
+            --success-color: #2ecc71; /* Para o status ATIVO */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        /* HEADER PADRONIZADO */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            height: 56px;
+        }
+
+        .navbar-brand img {
+            height: 35px;
+            /* Se a imagem for escura, inverte para branco */
+            filter: brightness(0) invert(1);
+            margin-top: -3px;
+        }
+        .navbar-brand span {
+            font-weight: 600;
+            font-size: 1.3rem;
+            margin-left: 0.5rem;
+        }
+
+        /* SIDEBAR PADRONIZADA */
+        .sidebar {
+            background-color: var(--primary-color);
+            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+            padding-top: 1rem;
+            width: 250px;
+            position: fixed;
+            top: 56px;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1020;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s ease-in-out;
+        }
+        .sidebar a.nav-link {
+            color: rgba(255, 255, 255, 0.75);
+            padding: 0.8rem 1.5rem;
+            border-left: 4px solid transparent;
+        }
+        .sidebar a.nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: white;
+            border-left-color: var(--accent-color);
+        }
+        .sidebar a.nav-link.active {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: white;
+            border-left-color: var(--accent-color);
+        }
+        .content-wrapper {
+            margin-left: 250px;
+            padding: 2rem;
+            flex-grow: 1;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { left: -250px; top: 0; height: 100vh; z-index: 1040; }
+            .sidebar.show { left: 0; }
+            .content-wrapper { margin-left: 0; }
+            .navbar-toggler { display: block !important; border: none; }
+            .navbar-toggler:focus { box-shadow: none; }
+            .sidebar-overlay {
+                position: fixed;
+                top: 0; left: 0; width: 100%; height: 100%;
+                background-color: rgba(0,0,0,0.6); z-index: 1039; display: none;
+            }
+            .sidebar.show + .sidebar-overlay { display: block; }
+            .main-header { height: auto; min-height: 56px; }
+        }
+        @media (min-width: 993px) {
+            .navbar-toggler { display: none !important; }
+        }
+
+        /* TÍTULO DA PÁGINA PADRONIZADO */
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+        }
+        .page-title i {
+            margin-right: 0.75rem;
+            font-size: 1.6rem;
+            color: var(--secondary-color);
+        }
+
+        /* FOOTER PADRONIZADO */
+        .main-footer {
+            background-color: #ffffff;
+            color: var(--primary-color);
+            padding: 1rem 0;
+            margin-top: auto;
+            width: 100%;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.85rem;
+        }
+        @media (min-width: 993px) {
+            .main-footer .container-fluid { padding-left: 270px; }
+        }
+        .main-footer a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        .main-footer a:hover { color: var(--accent-color); text-decoration: underline;}
+
+        /* ESTILOS DE CARD E TABELA (PADRÃO UNIFICADO) */
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        .card:hover { transform: translateY(-2px); }
+
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            color: var(--primary-color);
+        }
+        .card-header i {
+            margin-right: .6rem;
+            color: var(--accent-color);
+            font-size: 1.1rem;
+        }
+
+        /* Estilos de Tabela (unificados) */
+        .table thead th {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 0.75rem; /* text-xxs */
+            text-transform: uppercase;
+        }
+        .table tbody tr td {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem; /* text-sm */
+            vertical-align: middle;
+        }
+        .table-hover tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        .badge.bg-success {
+            background-image: linear-gradient(310deg, var(--success-color), #27ae60) !important;
+            color: white !important;
+        }
+        .badge.bg-secondary {
+            background-image: linear-gradient(310deg, #8392ab, #6c757d) !important;
+            color: white !important;
+        }
+
+        /* Estilo do Input de Pesquisa Padronizado */
+        .input-group-text {
+            background-color: #fff;
+            border-right: none;
+            color: var(--primary-color);
+        }
+        .form-control {
+            border-left: none;
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.1);
+            border-color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <nav class="navbar navbar-expand-lg navbar-dark px-3">
+        <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <a class="navbar-brand d-flex align-items-center me-auto" href="/">
+            <img src="/assets/img/logo.png" alt="Logo STM-ADV" class="me-2">
+            <span>STM-ADV</span>
+        </a>
+
+        <div class="navbar-nav align-items-center">
+            <span class="nav-link text-white me-3 d-none d-lg-block">
+                <i class="bi bi-person-circle me-1"></i>
+                {#if usuario}
+                    {usuario.nome ?: 'Usuário'}
+                    <small class="badge bg-light text-dark ms-1 text-uppercase">{usuario.perfil ?: 'ADVOGADO'}</small>
+                {#else}
+                    <span>Carregando...</span>
+                {/if}
+            </span>
+        </div>
+    </nav>
+</header>
+
+<div class="d-flex flex-grow-1">
+    <aside class="sidebar collapse d-lg-block" id="sidebarNav">
+        <nav class="nav flex-column flex-grow-1">
+
+            <a href="{#if usuario.perfil == 'MASTER'}/dashboard-master{#else if usuario.perfil == 'ADVOGADO'}/dashboard{#else}/dashboard-cliente{/if}" class="nav-link">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+
+            {#if usuario.perfil == 'MASTER' || usuario.perfil == 'ADVOGADO'}
+            <a href="/clientes" class="nav-link active">
+                <i class="bi bi-people"></i> Clientes
+            </a>
+            <a href="/processos" class="nav-link">
+                <i class="bi bi-journal-text"></i> Processos
+            </a>
+            <a href="/agenda" class="nav-link">
+                <i class="bi bi-calendar-check"></i> Agenda
+            </a>
+            {/if}
+
+            {#if usuario.perfil == 'MASTER'}
+            <a href="/gestao-usuarios" class="nav-link">
+                <i class="bi bi-person-gear"></i> Gestão Usuários
+            </a>
+            <a href="/auditoria" class="nav-link">
+                <i class="bi bi-shield-lock"></i> Auditoria
+            </a>
+            {/if}
+
+            <a href="/video-chamada" class="nav-link">
+                <i class="bi bi-camera-video"></i> Vídeo Chamada
+            </a>
+
+        </nav>
+
+        <div class="mt-auto">
+            <hr class="mx-3 border-secondary">
+            <a href="/perfil" class="nav-link">
+                <i class="bi bi-person-gear"></i> Meu Perfil
+            </a>
+            <a href="#" class="nav-link text-white" onclick="fazerLogout(); return false;">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay d-lg-none" data-bs-toggle="collapse" data-bs-target="#sidebarNav"></div>
+
+    <main class="content-wrapper">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="page-title mb-0">
+                <i class="bi bi-people-fill"></i>
+                Gerenciar Clientes
+            </h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCliente" onclick="novoCliente()">
+                <i class="bi bi-person-plus me-2"></i>Novo Cliente
+            </button>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" id="clienteSearch" placeholder="Filtrar por Nome, Email ou Telefone" onkeyup="filtrarClientes()">
+                </div>
+            </div>
+        </div>
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <i class="bi bi-list-ul me-2"></i>
+                Lista de Clientes
+            </div>
+            <div class="card-body px-0 pt-0 pb-2">
+                <div class="table-responsive p-0">
+                    <table class="table table-hover align-middle mb-0" id="tabelaClientesTable">
+                        <thead>
+                        <tr>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3">Nome</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Email</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Telefone</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2" width="120">Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tabelaClientes">
+                        <tr>
+                            <td colspan="5" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Carregando...</span>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<footer class="main-footer mt-auto">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                <p class="mb-0 small">&copy; <span id="footerYear">2025</span> STM-ADV. Todos os direitos reservados.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="/sobre" class="me-3 small">Sobre</a>
+                <a href="/contato" class="me-3 small">Contato</a>
+                <a href="/privacidade" class="small">Privacidade</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div class="modal fade" id="modalCliente" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitulo">Novo Cliente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCliente">
+                    <input type="hidden" id="clienteId">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="clienteNome" class="form-label">Nome Completo *</label>
+                            <input type="text" class="form-control" id="clienteNome" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="clienteEmail" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="clienteEmail" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="clienteTelefone" class="form-label">Telefone *</label>
+                            <input type="text" class="form-control" id="clienteTelefone" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="clienteCpfCnpj" class="form-label">CPF/CNPJ</label>
+                            <input type="text" class="form-control" id="clienteCpfCnpj">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="clienteEndereco" class="form-label">Endereço</label>
+                        <input type="text" class="form-control" id="clienteEndereco">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            <label for="clienteCidade" class="form-label">Cidade</label>
+                            <input type="text" class="form-control" id="clienteCidade">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="clienteEstado" class="form-label">Estado</label>
+                            <input type="text" class="form-control" id="clienteEstado" maxlength="2" placeholder="SP">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="clienteCep" class="form-label">CEP</label>
+                            <input type="text" class="form-control" id="clienteCep">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarCliente()">Salvar Cliente</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let clienteEditando = null;
+
+    // ------------------------------
+    // FUNÇÕES PADRONIZADAS
+    // ------------------------------
+    function fetchAutenticado(url, options = {}) {
+        return fetch(url, {
+            ...options,
+            credentials: 'include'
+        });
+    }
+
+    function fazerLogout() {
+        if (!confirm('Deseja realmente sair do sistema?')) return;
+
+        fetch('/login/logout', { method: 'POST' })
+            .then(() => window.location.href = '/login')
+            .catch(() => {
+                document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                window.location.href = '/login';
+            });
+    }
+
+    // ------------------------------
+    // LÓGICA ESPECÍFICA DO CLIENTE
+    // ------------------------------
+
+    // Carregar clientes quando a página abrir
+    document.addEventListener('DOMContentLoaded', function() {
+        inicializarClientes();
+        carregarClientes();
+    });
+
+    function inicializarClientes() {
+        // Inicialização padrão de sidebar e footer
+        const sidebar = document.getElementById('sidebarNav');
+        const overlay = document.querySelector('.sidebar-overlay');
+        if (sidebar && overlay) {
+            sidebar.addEventListener('show.bs.collapse', () => overlay.style.display = 'block');
+            sidebar.addEventListener('hide.bs.collapse', () => overlay.style.display = 'none');
+            overlay.addEventListener('click', () => {
+                const bsCollapse = bootstrap.Collapse.getInstance(sidebar);
+                if (bsCollapse) bsCollapse.hide();
+            });
+        }
+        document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+        console.log('✅ Dashboard Clientes padronizado e inicializado.');
+    }
+
+    // Lógica de Filtro/Pesquisa
+    function filtrarClientes() {
+        const filter = document.getElementById('clienteSearch').value.toUpperCase();
+        const table = document.getElementById('tabelaClientesTable');
+        const tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            let visible = false;
+            const cells = tr[i].getElementsByTagName('td');
+            // Colunas: 0 (Nome), 1 (Email), 2 (Telefone)
+            for (let j = 0; j <= 2; j++) {
+                const cell = cells[j];
+                if (cell) {
+                    const textValue = cell.textContent || cell.innerText;
+                    if (textValue.toUpperCase().indexOf(filter) > -1) {
+                        visible = true;
+                        break;
+                    }
+                }
+            }
+            tr[i].style.display = visible ? '' : 'none';
+        }
+    }
+
+    // Carregar lista de clientes
+    async function carregarClientes() {
+        try {
+            // A API correta é /clientes/api (GET)
+            const response = await fetchAutenticado('/clientes/api');
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error('Erro: ' + response.status);
+            }
+
+            const clientes = await response.json();
+            atualizarTabela(clientes);
+        } catch (error) {
+            console.error('Erro ao carregar clientes:', error);
+            document.getElementById('tabelaClientes').innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-danger py-4">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Erro ao carregar clientes
+                    </td>
+                </tr>
+            `;
+        }
+    }
+
+    // Atualizar a tabela com os clientes
+    function atualizarTabela(clientes) {
+        const tbody = document.getElementById('tabelaClientes');
+        if (!clientes || clientes.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-4">
+                        <i class="bi bi-people" style="font-size: 2rem;"></i>
+                        <p class="mt-2 mb-0">Nenhum cliente cadastrado</p>
+                        <small>Clique em "Novo Cliente" para adicionar</small>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        let html = '';
+        clientes.forEach(cliente => {
+            const nome = cliente.nome || '';
+            const email = cliente.email || '';
+            const telefone = cliente.telefone || '-';
+            const status = cliente.status || 'ATIVO';
+            const statusClass = status === 'ATIVO' ? 'bg-success' : 'bg-secondary';
+            const id = cliente.id;
+
+            html += `
+                <tr>
+                    <td>
+                        <p class="text-sm font-weight-bold mb-0 ps-3">${nome}</p>
+                        ${cliente.advogadoResponsavel ? `<small class="text-muted ps-3">Adv: ${cliente.advogadoResponsavel}</small>` : ''}
+                    </td>
+                    <td><p class="text-sm mb-0">${email}</p></td>
+                    <td><p class="text-sm mb-0">${telefone}</p></td>
+                    <td>
+                        <span class="badge ${statusClass}">
+                            ${status}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary btn-sm" onclick="editarCliente(${id})" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="excluirCliente(${id})" title="Excluir">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tbody.innerHTML = html;
+    }
+
+    // Abrir modal para novo cliente
+    function novoCliente() {
+        clienteEditando = null;
+        document.getElementById('modalTitulo').textContent = 'Novo Cliente';
+        document.getElementById('formCliente').reset();
+        document.getElementById('clienteId').value = '';
+    }
+
+    // Carregar dados do cliente para edição
+    async function editarCliente(id) {
+        try {
+            const response = await fetchAutenticado(`/clientes/api/${id}`);
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error('Erro ao carregar cliente: ' + response.status);
+            }
+
+            const cliente = await response.json();
+
+            clienteEditando = id;
+            document.getElementById('modalTitulo').textContent = 'Editar Cliente';
+            document.getElementById('clienteId').value = cliente.id || '';
+            document.getElementById('clienteNome').value = cliente.nome || '';
+            document.getElementById('clienteEmail').value = cliente.email || '';
+            document.getElementById('clienteTelefone').value = cliente.telefone || '';
+            document.getElementById('clienteCpfCnpj').value = cliente.cpfCnpj || '';
+            document.getElementById('clienteEndereco').value = cliente.endereco || '';
+            document.getElementById('clienteCidade').value = cliente.cidade || '';
+            document.getElementById('clienteEstado').value = cliente.estado || '';
+            document.getElementById('clienteCep').value = cliente.cep || '';
+
+            const modal = new bootstrap.Modal(document.getElementById('modalCliente'));
+            modal.show();
+        } catch (error) {
+            console.error('Erro ao carregar cliente:', error);
+            alert('Erro ao carregar dados do cliente');
+        }
+    }
+
+    // Salvar cliente (criar ou atualizar)
+    async function salvarCliente() {
+        const cliente = {
+            nome: document.getElementById('clienteNome').value.trim(),
+            email: document.getElementById('clienteEmail').value.trim(),
+            telefone: document.getElementById('clienteTelefone').value.trim(),
+            cpfCnpj: document.getElementById('clienteCpfCnpj').value.trim(),
+            endereco: document.getElementById('clienteEndereco').value.trim(),
+            cidade: document.getElementById('clienteCidade').value.trim(),
+            estado: document.getElementById('clienteEstado').value.trim(),
+            cep: document.getElementById('clienteCep').value.trim()
+        };
+        if (!cliente.nome || !cliente.email) {
+            alert('Por favor, preencha os campos obrigatórios (Nome e Email)');
+            return;
+        }
+
+        try {
+            const url = clienteEditando ?
+                `/clientes/api/${clienteEditando}` : '/clientes/api';
+            const method = clienteEditando ? 'PUT' : 'POST';
+            const response = await fetchAutenticado(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(cliente)
+            });
+
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+
+            if (response.ok) {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalCliente'));
+                modal.hide();
+                carregarClientes();
+                alert(clienteEditando ? 'Cliente atualizado com sucesso!' : 'Cliente criado com sucesso!');
+            } else {
+                const errorData = await response.json();
+                alert('Erro ao salvar cliente: ' + (errorData.error || response.statusText));
+            }
+        } catch (error) {
+            console.error('Erro ao salvar cliente:', error);
+            alert('Erro ao salvar cliente');
+        }
+    }
+
+    // Excluir cliente
+    async function excluirCliente(id) {
+        if (!confirm('Tem certeza que deseja excluir este cliente? Isso não será possível se houver processos vinculados.')) {
+            return;
+        }
+
+        try {
+            const response = await fetchAutenticado(`/clientes/api/${id}`, {
+                method: 'DELETE'
+            });
+            if (response.status === 401) {
+                window.location.href = '/login';
+                return;
+            }
+
+            if (response.ok) {
+                carregarClientes();
+                alert('Cliente excluído com sucesso!');
+            } else {
+                // Tenta pegar a mensagem de erro do backend (se houver processos vinculados)
+                const errorData = await response.json();
+                alert('Erro ao excluir cliente: ' + (errorData.error || response.statusText));
+            }
+        } catch (error) {
+            console.error('Erro ao excluir cliente:', error);
+            alert('Erro ao excluir cliente');
+        }
+    }
+</script>
+</body>
+</html>

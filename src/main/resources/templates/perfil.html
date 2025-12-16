@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - STM-ADV</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        /* CSS PADRONIZADO STM-ADV (Copiado do Dashboard) */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --light-bg: #f8f9fa;
+            --bs-body-bg: var(--light-bg);
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            height: 56px;
+        }
+
+        .navbar-brand img {
+            height: 35px;
+            filter: brightness(0) invert(1); /* Aplica o filtro para icones escuros em fundo claro */
+            margin-top: -3px;
+        }
+        .navbar-brand span {
+            font-weight: 600;
+            font-size: 1.3rem;
+            margin-left: 0.5rem;
+        }
+
+        .sidebar {
+            background-color: var(--primary-color);
+            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+            padding-top: 1rem;
+            width: 250px;
+            position: fixed;
+            top: 56px;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1020;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s ease-in-out;
+        }
+        .sidebar a.nav-link {
+            color: rgba(255, 255, 255, 0.75);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+            font-size: 0.95rem;
+        }
+        .sidebar a.nav-link i { margin-right: 0.8rem; font-size: 1.1rem; width: 20px; text-align: center; opacity: 0.9; }
+        .sidebar a.nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: white;
+            border-left-color: var(--accent-color);
+        }
+        .sidebar a.nav-link.active {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: white;
+            font-weight: 500;
+            border-left-color: var(--accent-color);
+        }
+        .content-wrapper {
+            margin-left: 250px;
+            padding: 2rem;
+            flex-grow: 1;
+            min-width: 0;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+        }
+        .page-title i {
+            margin-right: 0.75rem;
+            font-size: 1.6rem;
+            color: var(--secondary-color);
+        }
+
+        /* Estilos de Cards (Copiado do Dashboard) */
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            color: var(--primary-color);
+            border-radius: 0.75rem 0.75rem 0 0;
+        }
+        .card-header i { margin-right: .6rem; color: var(--accent-color); font-size: 1.1rem; }
+        .hidden { display: none; }
+
+        /* Estilos específicos do Perfil (LinkedIn Style) */
+        .profile-header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 2rem;
+            border-radius: .75rem .75rem 0 0; /* Ajuste para o radius do card */
+            display: flex;
+            align-items: center;
+        }
+        .profile-avatar {
+            border: 4px solid white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            object-fit: cover;
+        }
+        .profile-info h4 { margin-bottom: 0.1rem; font-weight: 600; }
+        .profile-info p { opacity: 0.8; font-style: italic; font-size: 0.9rem; }
+        .profile-details { padding: 1.5rem; }
+        .profile-details h5 { color: var(--primary-color); font-weight: 600; border-bottom: 2px solid var(--accent-color); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        .detail-item { margin-bottom: 1rem; }
+        .detail-item strong { color: var(--primary-color); font-weight: 600; display: block; margin-bottom: 0.2rem; font-size: 0.9rem; }
+        .detail-item span { font-size: 0.95rem; display: block; }
+        .detail-item.professional span { white-space: pre-wrap; }
+
+        /* Footer (Copiado do Dashboard) */
+        .main-footer {
+            background-color: #ffffff;
+            color: var(--primary-color);
+            padding: 1rem 0;
+            margin-top: auto;
+            width: 100%;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.85rem;
+        }
+        @media (min-width: 993px) {
+            .main-footer .container-fluid { padding-left: 270px; }
+        }
+        .main-footer a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        .main-footer a:hover { color: var(--accent-color); text-decoration: underline;}
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <nav class="navbar navbar-expand-lg navbar-dark px-3">
+        <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <a class="navbar-brand d-flex align-items-center me-auto" href="/">
+            <img src="/img/ld.png" alt="Logo STM-ADV" class="me-2">
+            <span>STM-ADV</span>
+        </a>
+
+        <div class="navbar-nav align-items-center">
+            <span class="nav-link text-white me-3 d-none d-lg-block">
+                {#if usuario.perfil}
+                <small class="badge bg-light text-dark ms-1 text-uppercase me-2">{usuario.perfil}</small>
+                {/if}
+                <i class="bi bi-person-circle me-1"></i>
+                {#if usuario}
+                    {usuario.nome ?: 'Usuário'}
+                {#else}
+                    <span>Carregando...</span>
+                {/if}
+            </span>
+        </div>
+    </nav>
+</header>
+
+<div class="d-flex flex-grow-1">
+    <aside class="sidebar collapse d-lg-block" id="sidebarNav">
+        <nav class="nav flex-column">
+            <a href="{#if usuario.perfil == 'MASTER'}/dashboard/master{#else}/dashboard{/if}" class="nav-link">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="/clientes" class="nav-link">
+                <i class="bi bi-people-fill"></i> Clientes
+            </a>
+            <a href="/processos" class="nav-link">
+                <i class="bi bi-folder2-open"></i> Processos
+            </a>
+            <a href="/agenda" class="nav-link">
+                <i class="bi bi-calendar-event"></i> Agenda
+            </a>
+            <a href="/videoChamada" class="nav-link">
+                <i class="bi bi-camera-video"></i> Videochamada
+            </a>
+
+            {#if usuario.isMaster()}
+            <a href="/auditoria" class="nav-link"><i class="bi bi-shield-lock"></i> Auditoria</a>
+            <a href="/gestao-usuarios" class="nav-link"><i class="bi bi-people-fill"></i> Usuários</a>
+            {/if}
+        </nav>
+        <div class="mt-auto">
+            <hr class="mx-3">
+            <a href="/perfil" class="nav-link active">
+                <i class="bi bi-person-gear"></i> Meu Perfil
+            </a>
+            <a href="#" class="nav-link" onclick="fazerLogout(); return false;">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay d-lg-none" data-bs-toggle="collapse" data-bs-target="#sidebarNav"></div>
+
+    <main class="content-wrapper">
+        <h1 class="page-title"><i class="bi bi-person-badge"></i> Meu Perfil</h1>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="profile-header">
+                        <img src="https://cdn-icons-png.flaticon.com/512/147/147144.png" class="rounded-circle profile-avatar me-4" width="90" height="90">
+                        <div class="profile-info">
+                            <h4 id="viewNome">{usuario.nome}</h4>
+                            <p class="mb-0">{usuario.email}</p>
+                            <small class="badge bg-info text-dark text-uppercase">{usuario.perfil}</small>
+                            {#if usuario.isAdvogado() && usuario.oab}
+                            <p class="mb-0 mt-2">OAB: {usuario.oab}</p>
+                            {/if}
+                        </div>
+                    </div>
+                    <div class="card-body profile-details">
+
+                        <h5><i class="bi bi-telephone-fill"></i> Detalhes de Contato</h5>
+                        <div class="row">
+                            <div class="col-md-6 detail-item">
+                                <strong>Telefone</strong>
+                                <span id="viewTelefone">{usuario.telefone ?: 'N/A'}</span>
+                            </div>
+                            <div class="col-md-6 detail-item">
+                                <strong>E-mail</strong>
+                                <span>{usuario.email}</span>
+                            </div>
+                            <div class="col-md-12 detail-item">
+                                <strong>Endereço</strong>
+                                <span id="viewEndereco">{usuario.endereco ?: 'N/A'}</span>
+                            </div>
+                            <div class="col-md-6 detail-item">
+                                <strong>Cidade</strong>
+                                <span id="viewCidade">{usuario.cidade ?: 'N/A'}</span>
+                            </div>
+                        </div>
+
+                        {#if usuario.isAdvogado()}
+                        <h5 class="mt-4"><i class="bi bi-mortarboard-fill"></i> Informação Profissional</h5>
+                        <div class="row">
+                            <div class="col-md-6 detail-item">
+                                <strong>OAB</strong>
+                                <span id="viewOAB">{usuario.oab ?: 'N/A'}</span>
+                            </div>
+                            <div class="col-md-6 detail-item">
+                                <strong>Especialidade</strong>
+                                <span id="viewEspecialidade">{usuario.especialidade ?: 'N/A'}</span>
+                            </div>
+                            <div class="col-md-12 detail-item professional">
+                                <strong>Formação Acadêmica</strong>
+                                <span id="viewFormacao">{usuario.formacao ?: 'N/A'}</span>
+                            </div>
+                            <div class="col-md-12 detail-item professional">
+                                <strong>Experiência Profissional</strong>
+                                <span id="viewExperiencia">{usuario.experiencia ?: 'N/A'}</span>
+                            </div>
+                        </div>
+                        {/if}
+
+                        <button class="btn btn-outline-primary mt-3 w-100" onclick="toggleEdit()"><i class="bi bi-pencil"></i> Editar Perfil</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card hidden" id="formEdit">
+                    <div class="card-header bg-success text-white"><i class="bi bi-pencil-square"></i> Editar Perfil</div>
+                    <div class="card-body">
+                        <form id="formPerfil">
+                            <div class="mb-3"><label>Nome</label><input type="text" class="form-control" id="editNome" value="{usuario.nome}" required></div>
+                            <div class="mb-3"><label>Email</label><input type="email" class="form-control" id="editEmail" value="{usuario.email}" readonly></div>
+                            <div class="mb-3"><label>Telefone</label><input type="text" class="form-control" id="editTelefone" value="{usuario.telefone}"></div>
+                            <div class="mb-3"><label>Endereço</label><input type="text" class="form-control" id="editEndereco" value="{usuario.endereco}"></div>
+                            <div class="mb-3"><label>Cidade</label><input type="text" class="form-control" id="editCidade" value="{usuario.cidade}"></div>
+
+                            {#if usuario.isAdvogado()}
+                            <hr>
+                            <h6>Informação Profissional</h6>
+                            <div class="mb-3"><label>OAB</label><input type="text" class="form-control" id="editOAB" value="{usuario.oab}"></div>
+                            <div class="mb-3"><label>Especialidade</label><input type="text" class="form-control" id="editEspecialidade" value="{usuario.especialidade}"></div>
+                            <div class="mb-3"><label>Formação</label><textarea class="form-control" id="editFormacao">{usuario.formacao}</textarea></div>
+                            <div class="mb-3"><label>Experiência</label><textarea class="form-control" id="editExperiencia">{usuario.experiencia}</textarea></div>
+                            {/if}
+
+                            <div class="d-flex justify-content-between mt-4">
+                                <button type="button" class="btn btn-secondary" onclick="toggleEdit()"><i class="bi bi-x-lg"></i> Cancelar</button>
+                                <button type="submit" class="btn btn-success"><i class="bi bi-check2"></i> Salvar Alterações</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mt-4">
+                    <div class="card-header bg-warning text-dark"><i class="bi bi-key-fill"></i> Alterar Senha</div>
+                    <div class="card-body">
+                        <form id="formSenha">
+                            <div class="mb-3"><label>Nova Senha</label><input type="password" class="form-control" id="novaSenha" required></div>
+                            <div class="mb-3"><label>Confirmar Senha</label><input type="password" class="form-control" id="confirmarSenha" required></div>
+                            <button type="submit" class="btn btn-warning w-100"><i class="bi bi-check2"></i> Alterar Senha</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<footer class="main-footer mt-auto">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                <p class="mb-0 small">&copy; <span id="footerYear">2024</span> STM-ADV. Todos os direitos reservados.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="/sobre" class="me-3 small">Sobre</a>
+                <a href="/contato" class="me-3 small">Contato</a>
+                <a href="/privacidade" class="small">Privacidade</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Funções de Gerenciamento do Perfil (Inalteradas)
+    function toggleEdit(){
+        document.getElementById('formEdit').classList.toggle('hidden');
+    }
+
+    function updateView(payload) {
+        document.getElementById('viewNome').textContent = payload.nome;
+        document.getElementById('viewTelefone').textContent = payload.telefone || 'N/A';
+        document.getElementById('viewEndereco').textContent = payload.endereco || 'N/A';
+        document.getElementById('viewCidade').textContent = payload.cidade || 'N/A';
+
+        if (document.getElementById('viewOAB')) {
+            document.getElementById('viewOAB').textContent = payload.oab || 'N/A';
+            document.getElementById('viewEspecialidade').textContent = payload.especialidade || 'N/A';
+            document.getElementById('viewFormacao').textContent = payload.formacao || 'N/A';
+            document.getElementById('viewExperiencia').textContent = payload.experiencia || 'N/A';
+        }
+    }
+
+    document.getElementById('formPerfil').addEventListener('submit', async e=>{
+        e.preventDefault();
+
+        const payload = {
+            nome: document.getElementById('editNome').value,
+            // O email é enviado, mas o backend deve ignorar e usar o do token para a busca
+            email: document.getElementById('editEmail').value,
+            telefone: document.getElementById('editTelefone').value,
+            endereco: document.getElementById('editEndereco').value,
+            cidade: document.getElementById('editCidade').value,
+        };
+
+        if (document.getElementById('editOAB')) {
+            payload.oab = document.getElementById('editOAB').value;
+            payload.especialidade = document.getElementById('editEspecialidade').value;
+            payload.formacao = document.getElementById('editFormacao').value;
+            payload.experiencia = document.getElementById('editExperiencia').value;
+        }
+
+        const res = await fetch(`/perfil/editar`,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(payload)
+        });
+
+        if(res.ok) {
+            alert('Perfil atualizado com sucesso!');
+            updateView(payload);
+            toggleEdit();
+        }
+        else {
+            alert('Erro ao atualizar perfil. Verifique os dados ou tente novamente.');
+        }
+    });
+
+    document.getElementById('formSenha').addEventListener('submit', async e=>{
+        e.preventDefault();
+
+        const novaSenha = document.getElementById('novaSenha').value;
+        const confirmar = document.getElementById('confirmarSenha').value;
+
+        if(novaSenha.length < 8) {
+            alert('A nova senha deve ter no mínimo 8 caracteres.');
+            return;
+        }
+
+        if(novaSenha !== confirmar) {
+            alert('As senhas não conferem');
+            return;
+        }
+
+        const res = await fetch(`/perfil/senha`,{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(novaSenha)
+        });
+
+        if(res.ok) {
+            alert('Senha alterada com sucesso! Você precisará logar novamente na próxima sessão.');
+            document.getElementById('novaSenha').value = '';
+            document.getElementById('confirmarSenha').value = '';
+        }
+        else {
+            alert('Erro ao alterar senha. Por favor, tente novamente.');
+        }
+    });
+
+    // Função de Logout (Copiada do Dashboard)
+    function fazerLogout() {
+        if (!confirm('Deseja realmente sair do sistema?')) return;
+        fetch('/login/logout', { method: 'POST' })
+            .then(() => window.location.href = '/login')
+            .catch(() => window.location.href = '/login');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configuração de Sidebar Responsiva (Copiada do Dashboard)
+        const sidebar = document.getElementById('sidebarNav');
+        const overlay = document.querySelector('.sidebar-overlay');
+        if (sidebar && overlay) {
+            sidebar.addEventListener('show.bs.collapse', () => overlay.style.display = 'block');
+            sidebar.addEventListener('hide.bs.collapse', () => overlay.style.display = 'none');
+            overlay.addEventListener('click', () => {
+                const bsCollapse = bootstrap.Collapse.getInstance(sidebar);
+                if (bsCollapse) bsCollapse.hide();
+            });
+        }
+
+        // Ano do footer
+        document.getElementById('footerYear').textContent = new Date().getFullYear();
+    });
+</script>
+
+</body>
+</html>

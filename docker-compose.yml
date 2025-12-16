@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db-stmadv:
+    image: postgres:15-alpine
+    container_name: stmadv_db
+    restart: always
+    ports:
+      # Mapeia a porta 5433 do seu PC para a 5432 do container (Padrão do Postgres)
+      # Isso permite que sua config 'localhost:5433' funcione perfeitamente.
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=14405623
+      - POSTGRES_DB=stmadv
+    volumes:
+      # Persiste os dados para não perder clientes/processos ao reiniciar
+      - postgres_stmadv_data:/var/lib/postgresql/data
+    networks:
+      - stm-network
+
+  # Opcional: Interface visual para ver o banco (pgAdmin)
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_stm
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@stm.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db-stmadv
+    networks:
+      - stm-network
+
+volumes:
+  postgres_stmadv_data:
+
+networks:
+  stm-network:
+    driver: bridge

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Master - STM-ADV</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="preconnect" href="/dashboard/master">
+    <link rel="preconnect" href="/dashboard-master/alertas">
+    <style>
+        /* CSS PADRONIZADO (ADOTADO DO DASHBOARD ADVOGADO) */
+        :root {
+            --primary-color: #2c3e50; /* Cinza Escuro (Sidebar/Header) */
+            --secondary-color: #34495e; /* Cinza Escuro 2 */
+            --accent-color: #3498db; /* Azul */
+            --light-bg: #f8f9fa;
+            --bs-body-bg: var(--light-bg);
+            /* Gradientes para os Cards (Cores Aprovadas) */
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        /* HEADER PADRONIZADO */
+        .main-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            height: 56px;
+        }
+
+        .navbar-brand img {
+            height: 35px;
+            filter: brightness(0) invert(1);
+            margin-top: -3px;
+        }
+        .navbar-brand span {
+            font-weight: 600;
+            font-size: 1.3rem;
+            margin-left: 0.5rem;
+        }
+
+        /* SIDEBAR PADRONIZADA */
+        .sidebar {
+            background-color: var(--primary-color);
+            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
+            padding-top: 1rem;
+            width: 250px;
+            position: fixed;
+            top: 56px;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1020;
+            display: flex;
+            flex-direction: column;
+            transition: left 0.3s ease-in-out;
+        }
+
+        .sidebar nav { flex-grow: 1; }
+
+        .sidebar a.nav-link {
+            color: rgba(255, 255, 255, 0.75);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            transition: all 0.2s ease;
+            border-left: 4px solid transparent;
+            font-size: 0.95rem;
+        }
+
+        .sidebar a.nav-link i {
+            margin-right: 0.8rem;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .sidebar a.nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: white;
+            border-left-color: var(--accent-color);
+        }
+
+        .sidebar a.nav-link.active {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: white;
+            font-weight: 500;
+            border-left-color: var(--accent-color);
+        }
+
+        .sidebar .mt-auto { margin-top: auto; padding-bottom: 1rem; }
+        .sidebar hr { border-color: rgba(255, 255, 255, 0.15); }
+
+        .content-wrapper {
+            margin-left: 250px;
+            padding: 2rem;
+            flex-grow: 1;
+            min-width: 0;
+            transition: margin-left 0.3s ease-in-out;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar { left: -250px; top: 0; height: 100vh; z-index: 1040; }
+            .sidebar.show { left: 0; }
+            .content-wrapper { margin-left: 0; }
+            .navbar-toggler { display: block !important; border: none; }
+            .navbar-toggler:focus { box-shadow: none; }
+            .sidebar-overlay {
+                position: fixed;
+                top: 0; left: 0; width: 100%; height: 100%;
+                background-color: rgba(0,0,0,0.6); z-index: 1039; display: none;
+            }
+            .sidebar.show + .sidebar-overlay { display: block; }
+            .main-header { height: auto; min-height: 56px; }
+        }
+        @media (min-width: 993px) {
+            .navbar-toggler { display: none !important; }
+        }
+
+        /* TÍTULO DA PÁGINA PADRONIZADO */
+        .page-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+        }
+        .page-title i {
+            margin-right: 0.75rem;
+            font-size: 1.6rem;
+            color: var(--secondary-color);
+        }
+
+        /* FOOTER PADRONIZADO */
+        .main-footer {
+            background-color: #ffffff;
+            color: var(--secondary-color);
+            padding: 1rem 0;
+            margin-top: auto;
+            width: 100%;
+            border-top: 1px solid #dee2e6;
+            font-size: 0.85rem;
+        }
+        .main-footer .container-fluid { padding-left: 2rem; padding-right: 2rem; }
+        @media (min-width: 993px) {
+            .main-footer .container-fluid { padding-left: 270px; }
+        }
+        .main-footer a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        .main-footer a:hover { color: var(--accent-color); text-decoration: underline;}
+
+        /* ESTILOS DE CARD (PADRÃO ADVOGADO) */
+        .card {
+            border: none;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        .card:hover { transform: translateY(-2px); }
+
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            color: var(--primary-color);
+        }
+        .card-header i {
+            margin-right: .6rem;
+            color: var(--accent-color);
+            font-size: 1.1rem;
+        }
+
+        /* Gradientes dos Cards (Cores Aprovadas) */
+        .bg-gradient-success { background-image: linear-gradient(310deg, #2dce89, #2ecc71); }
+        .bg-gradient-info { background-image: linear-gradient(310deg, #11c1e0, #3498db); }
+        .bg-gradient-danger { background-image: linear-gradient(310deg, #f5365c, #e74c3c); }
+        .bg-gradient-warning { background-image: linear-gradient(310deg, #fb6340, #f39c12); }
+        .bg-gradient-primary { background-image: linear-gradient(310deg, #6272e0, #3498db); }
+
+        .icon-shape {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            color: var(--primary-color);
+            text-align: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 1.5rem;
+        }
+
+        .btn {
+            border-radius: 6px;
+            padding: 0.6rem 1.2rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+        .btn i {
+            vertical-align: middle;
+            margin-top: -3px;
+            margin-right: 0.3rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <nav class="navbar navbar-expand-lg navbar-dark px-3">
+        <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <a class="navbar-brand d-flex align-items-center me-auto" href="/">
+            <img src="/img/ld.png" alt="Logo STM-ADV" class="me-2">
+            <span>STM-ADV</span>
+        </a>
+
+        <div class="navbar-nav align-items-center">
+            <span class="nav-link text-white me-3 d-none d-lg-block">
+                <i class="bi bi-person-circle me-1"></i>
+                {#if usuario}
+                    {usuario.nome ?: 'Usuário'}
+                    <small class="badge bg-light text-dark ms-1 text-uppercase">{usuario.perfil ?: 'MASTER'}</small>
+                {#else}
+                    <span>Carregando...</span>
+                {/if}
+            </span>
+        </div>
+    </nav>
+</header>
+
+<div class="d-flex flex-grow-1">
+    <aside class="sidebar collapse d-lg-block" id="sidebarNav">
+        <nav class="nav flex-column">
+            <a href="/dashboard/master" class="nav-link active">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="/gestao-usuarios" class="nav-link" title="Gerenciar Usuários e Aprovações">
+                <i class="bi bi-people-fill"></i> Usuários
+            </a>
+            <a href="/processos" class="nav-link" title="Ver Todos Processos">
+                <i class="bi bi-folder2-open"></i> Processos
+            </a>
+            <a href="/agenda" class="nav-link" title="Ver Agenda e Eventos">
+                <i class="bi bi-calendar-date-fill"></i> Agenda
+            </a>
+            <a href="/auditoria" class="nav-link" title="Ver Auditoria">
+                <i class="bi bi-shield-check"></i> Auditoria
+            </a>
+        </nav>
+        <div class="mt-auto">
+            <hr class="mx-3">
+            <a href="/perfil" class="nav-link" title="Editar Perfil">
+                <i class="bi bi-person-gear"></i> Meu Perfil
+            </a>
+            <a href="#" class="nav-link" onclick="fazerLogout(); return false;">
+                <i class="bi bi-box-arrow-right"></i> Sair
+            </a>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay d-lg-none" data-bs-toggle="collapse" data-bs-target="#sidebarNav"></div>
+
+    <main class="content-wrapper">
+        <h1 class="page-title">
+            Dashboard Master
+        </h1>
+
+        <div id="alertasSistema" class="mb-4">
+            <div class="alert alert-secondary d-flex align-items-center">
+                <i class="bi bi-hourglass-split me-2"></i>
+                <div>Carregando alertas...</div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-sm-6 col-lg-3">
+                <div class="card p-3 shadow-sm bg-gradient-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-start">
+                            <p class="text-sm mb-0 text-white opacity-7">Total Usuários</p>
+                            <h5 class="font-weight-bolder text-white mb-0" id="totalUsuarios">0</h5>
+                        </div>
+                        <div class="icon icon-shape text-dark text-center rounded-circle">
+                            <i class="bi bi-people-fill opacity-10"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card p-3 shadow-sm bg-gradient-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-start">
+                            <p class="text-sm mb-0 text-white opacity-7">Total Processos</p>
+                            <h5 class="font-weight-bolder text-white mb-0" id="totalProcessos">0</h5>
+                        </div>
+                        <div class="icon icon-shape text-dark text-center rounded-circle">
+                            <i class="bi bi-folder2-open opacity-10"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card p-3 shadow-sm bg-gradient-warning text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-start">
+                            <p class="text-sm mb-0 text-white opacity-7">Total Clientes</p>
+                            <h5 class="font-weight-bolder text-white mb-0" id="totalClientes">0</h5>
+                        </div>
+                        <div class="icon icon-shape text-dark text-center rounded-circle">
+                            <i class="bi bi-person-lines-fill opacity-10"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card p-3 shadow-sm bg-gradient-info text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-start">
+                            <p class="text-sm mb-0 text-white opacity-7">Processos Ativos</p>
+                            <h5 class="font-weight-bolder text-white mb-0" id="processosAtivos">0</h5>
+                        </div>
+                        <div class="icon icon-shape text-dark text-center rounded-circle">
+                            <i class="bi bi-activity opacity-10"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card p-3 shadow-sm bg-gradient-danger text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-start">
+                            <p class="text-sm mb-0 text-white opacity-7">Advogados Pendentes</p>
+                            <h5 class="font-weight-bolder text-white mb-0" id="advogadosPendentes">0</h5>
+                        </div>
+                        <div class="icon icon-shape text-dark text-center rounded-circle">
+                            <i class="bi bi-person-exclamation opacity-10"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-lightning-fill me-2"></i>
+                        Ações Administrativas
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a href="/gestao-usuarios" class="btn btn-primary w-100">
+                                    <i class="bi bi-people-fill"></i>Gerenciar Usuários
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/gestao-usuarios#pendentes" class="btn btn-warning w-100 text-dark">
+                                    <i class="bi bi-patch-check-fill"></i>Advogados Pendentes
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/processos" class="btn btn-success w-100">
+                                    <i class="bi bi-folder2-open"></i>Ver Todos Processos
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/agenda" class="btn btn-secondary w-100">
+                                    <i class="bi bi-calendar-date-fill"></i>Ver Agenda
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/auditoria" class="btn btn-info w-100">
+                                    <i class="bi bi-shield-check"></i>Auditoria do Sistema
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-graph-up me-2"></i>
+                        Status do Sistema
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-1">Processos Ativos</small>
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span id="statusProcessosTexto">0 / 0</span>
+                                <span id="statusProcessosPercentual">0%</span>
+                            </div>
+                            <div class="progress rounded-pill" style="height: 6px;">
+                                <div class="progress-bar bg-success rounded-pill" id="statusProcessosBarra"
+                                     role="progressbar" style="width: 0%">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-1">Usuários Ativos</small>
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span id="statusUsuariosTexto">0 / 0</span>
+                                <span id="statusUsuariosPercentual">0%</span>
+                            </div>
+                            <div class="progress rounded-pill" style="height: 6px;">
+                                <div class="progress-bar bg-primary rounded-pill" id="statusUsuariosBarra"
+                                     role="progressbar" style="width: 0%">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<footer class="main-footer mt-auto">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                <p class="mb-0 small">&copy; <span id="footerYear">2024</span> STM-ADV. Todos os direitos reservados.</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="/sobre" class="me-3 small">Sobre</a>
+                <a href="/contato" class="me-3 small">Contato</a>
+                <a href="/privacidade" class="small">Privacidade</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ------------------------------
+    // FUNÇÕES
+    // ------------------------------
+
+    // Função para fazer logout
+    function fazerLogout() {
+        if (!confirm('Deseja realmente sair do sistema?')) return;
+        fetch('/login/logout', { method: 'POST' })
+            .then(() => window.location.href = '/login')
+            .catch(() => window.location.href = '/login');
+    }
+
+    // Carregar dados do dashboard
+    async function carregarDashboard() {
+        try {
+            console.log('📊 Carregando dados do dashboard...');
+            // O path do controller é /dashboard/master
+            const response = await fetch('/dashboard/master');
+
+            if (!response.ok) throw new Error('Erro HTTP: ' + response.status);
+
+            const dados = await response.json();
+            console.log('✅ Dados recebidos:', dados);
+
+            // Atualiza os cards
+            document.getElementById('totalUsuarios').textContent = dados.totalUsuarios || 0;
+            document.getElementById('totalProcessos').textContent = dados.totalProcessos || 0;
+            document.getElementById('totalClientes').textContent = dados.totalClientes || 0;
+            document.getElementById('processosAtivos').textContent = dados.processosAtivos || 0;
+            document.getElementById('advogadosPendentes').textContent = dados.advogadosPendentes || 0;
+
+            // Atualiza gráficos de status
+            const totalProcessos = dados.totalProcessos || 0;
+            const processosAtivos = dados.processosAtivos || 0;
+            const totalUsuarios = dados.totalUsuarios || 0;
+            const usuariosAtivos = dados.usuariosAtivos || 0;
+
+            // Processos
+            const percentualP = totalProcessos > 0 ? Math.round((processosAtivos * 100) / totalProcessos) : 0;
+            document.getElementById('statusProcessosBarra').style.width = percentualP + '%';
+            document.getElementById('statusProcessosTexto').textContent = processosAtivos + ' / ' + totalProcessos;
+            document.getElementById('statusProcessosPercentual').textContent = percentualP + '%';
+
+            // Usuários
+            const percentualU = totalUsuarios > 0 ? Math.round((usuariosAtivos * 100) / totalUsuarios) : 0;
+            document.getElementById('statusUsuariosBarra').style.width = percentualU + '%';
+            document.getElementById('statusUsuariosTexto').textContent = usuariosAtivos + ' / ' + totalUsuarios;
+            document.getElementById('statusUsuariosPercentual').textContent = percentualU + '%';
+
+        } catch (error) {
+            console.error('❌ Erro ao carregar dados:', error);
+            ['totalUsuarios', 'totalProcessos', 'totalClientes', 'processosAtivos', 'advogadosPendentes'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = '0';
+            });
+        }
+    }
+
+    // Carregar alertas
+    async function carregarAlertas() {
+        const container = document.getElementById('alertasSistema');
+        if (!container) return; // Checa se o elemento existe
+
+        try {
+            console.log('🔔 Carregando alertas...');
+            // Assumindo que o endpoint para alertas ainda é /dashboard-master/alertas
+            const response = await fetch('/dashboard-master/alertas');
+
+            if (!response.ok) throw new Error('Erro HTTP: ' + response.status);
+
+            const alertas = await response.json();
+            console.log('✅ Alertas recebidos:', alertas);
+
+            container.innerHTML = '';
+
+            if (!alertas || alertas.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-success d-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <div>Sistema operando normalmente</div>
+                    </div>`;
+                return;
+            }
+
+            for (let alerta of alertas) {
+                if (!alerta || !alerta.mensagem) continue;
+                let mensagem = alerta.mensagem.replace(/\$/g, '');
+                if (!mensagem.trim()) continue;
+
+                const div = document.createElement('div');
+                div.className = `alert alert-${alerta.nivel || 'info'} d-flex align-items-center`;
+                div.innerHTML = `
+                    <i class="bi bi-${alerta.icone || 'info-circle'} me-2"></i>
+                    <div>${mensagem}</div>
+                `;
+                container.appendChild(div);
+            }
+
+            if (container.children.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-info d-flex align-items-center">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <div>Nenhum alerta para exibir</div>
+                    </div>`;
+            }
+
+        } catch (error) {
+            console.error('❌ Erro ao carregar alertas:', error);
+            container.innerHTML = `
+                <div class="alert alert-danger d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>Erro ao carregar alertas</div>
+                </div>`;
+        }
+    }
+
+    // TESTE DIRETO - Força a exibição de alertas
+    function testeAlertasManualmente() {
+        const container = document.getElementById('alertasSistema');
+        if (!container) return;
+
+        // Limpa e adiciona alertas FIXOS (Exemplo de alertas reais)
+        container.innerHTML = '';
+
+        const alert1 = document.createElement('div');
+        alert1.className = 'alert alert-warning d-flex align-items-center';
+        alert1.innerHTML = '<i class="bi bi-person-exclamation me-2"></i><div>1 advogado aguardando aprovação</div>';
+        container.appendChild(alert1);
+
+        const alert2 = document.createElement('div');
+        alert2.className = 'alert alert-danger d-flex align-items-center';
+        alert2.innerHTML = '<i class="bi bi-folder-x me-2"></i><div>1 processo sem advogado responsável</div>';
+        container.appendChild(alert2);
+    }
+
+    // ------------------------------
+    // INICIALIZAÇÃO DA DASHBOARD (PADRÃO)
+    // ------------------------------
+    function inicializarDashboardMaster() {
+        const sidebar = document.getElementById('sidebarNav');
+        const overlay = document.querySelector('.sidebar-overlay');
+
+        // 1. Configura sidebar mobile
+        if (sidebar && overlay) {
+            sidebar.addEventListener('show.bs.collapse', () => overlay.style.display = 'block');
+            sidebar.addEventListener('hide.bs.collapse', () => overlay.style.display = 'none');
+            overlay.addEventListener('click', () => {
+                const bsCollapse = bootstrap.Collapse.getInstance(sidebar);
+                if (bsCollapse) bsCollapse.hide();
+            });
+        }
+
+        // 2. Ano do footer
+        const footerYear = document.getElementById('footerYear');
+        if(footerYear) footerYear.textContent = new Date().getFullYear();
+
+        // 3. Carrega dados (assíncronos)
+        carregarDashboard();
+        // O teste manual é executado 3 segundos após a inicialização
+        // se desejar usar a função carregarAlertas(), remova ou comente a linha abaixo
+        // carregarAlertas();
+
+        // 4. TESTE: Executa teste manual após 3 segundos
+        setTimeout(testeAlertasManualmente, 3000);
+
+        console.log('✅ Dashboard Master inicializado com sucesso!');
+    }
+
+    // Inicia quando o DOM estiver pronto
+    document.addEventListener('DOMContentLoaded', inicializarDashboardMaster);
+</script>
+
+</body>
+</html>
