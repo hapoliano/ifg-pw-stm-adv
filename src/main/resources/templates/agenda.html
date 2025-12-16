@@ -296,23 +296,23 @@
         {#for ev in eventos}
         {
             id: {ev.id},
-            title: "{ev.titulo:js}",
-            start: "{ev.dataInicio}",
-            // Uso do operador ternário da EL para evitar erro de parser
-            end: {ev.dataFim ? ('"' + ev.dataFim + '"') : 'null'},
-    color: "{ev.cor}",
-        allDay: {ev.diaInteiro},
-    description: "{ev.descricao:js}"
-    }{#if hasNext},{/if}
-    {/for}
+            title: "{ev.title | js}",
+            start: "{ev.start}",
+            end: "{ev.end}",
+            color: "{ev.color}",
+            allDay: {ev.allDay},
+            description: "{ev.description | js}",
+            tipo: "{ev.tipo}"
+        }{#if hasNext},{/if}
+        {/for}
     ];
 
     // Corrige "null" string para null literal e garante que description não seja null
-    const eventosCorrigidos = eventosCarregados.map(e => {
-        if (e.end === "null" || e.end === "") e.end = null;
-        e.description = e.description ?? "";
-        return e;
-    });
+    const eventosCorrigidos = eventosCarregados.map(e => ({
+        ...e,
+        end: e.end && e.end.trim() !== "" ? e.end : null,
+        description: e.description ?? ""
+    }));
 
     // ------------------------------
     // Inicialização do Calendário
