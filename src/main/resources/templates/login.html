@@ -14,16 +14,14 @@
             --light-bg: #ecf0f1;
         }
 
-        /* CORREÇÃO 1: Sticky Footer (Rodapé fixo ao fundo quando há pouco conteúdo) */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--light-bg);
-            display: flex;             /* Habilita Flexbox */
-            flex-direction: column;    /* Organiza itens em coluna */
-            min-height: 100vh;        /* Garante altura mínima de 100% da tela */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        /* INÍCIO DO ESTILO PADRONIZADO DO HEADER */
         .main-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -38,11 +36,9 @@
             height: 45px;
             filter: brightness(0) invert(1);
         }
-        /* FIM DO ESTILO PADRONIZADO DO HEADER */
 
         .login-container {
             max-width: 500px;
-            /* Margem ajustada para dar espaço sem usar <br> */
             margin: 4rem auto;
         }
 
@@ -110,42 +106,10 @@
             background: linear-gradient(135deg, #2980b9, var(--accent-color));
         }
 
-        .quick-access {
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 1.5rem 0;
-            position: relative;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #ddd;
-        }
-
-        .divider span {
-            background: white;
-            padding: 0 1rem;
-            position: relative;
-            color: #999;
-            font-size: 0.9rem;
-        }
-
         .main-footer {
             background-color: var(--primary-color);
             color: rgba(255, 255, 255, 0.8);
             padding: 2rem 0;
-            /* CORREÇÃO 2: Empurra o footer para baixo automaticamente */
             margin-top: auto;
         }
 
@@ -240,7 +204,6 @@
     const form = document.getElementById('formLogin');
     const alertDiv = document.getElementById('alert-message');
 
-    // Função padronizada para exibir alertas
     function updateAlert(type, message) {
         alertDiv.textContent = message;
         alertDiv.classList.remove('alert-success', 'alert-danger');
@@ -266,28 +229,26 @@
                 body: JSON.stringify({ email, senha })
             });
 
-            let data = { success: false, mensagem: 'Erro desconhecido. Verifique o console.' };
+            let data = { success: false, mensagem: 'Erro desconhecido.' };
 
             if (response.headers.get('content-type')?.includes('application/json')) {
                 data = await response.json();
             } else if (response.status === 404) {
-                data.mensagem = 'Erro 404: Rota de login não encontrada. Tente reiniciar o servidor.';
+                data.mensagem = 'Erro 404: Rota de login não encontrada.';
             } else {
                 data.mensagem = `Erro de conexão. Status: ${response.status}.`;
             }
 
-
             if (response.ok) {
-                // Sucesso
                 updateAlert('success', data.mensagem || 'Login efetuado com sucesso!');
-                setTimeout(() => window.location.href = '/dashboard', 500);
+                // CORREÇÃO: Usa a URL retornada pelo backend
+                setTimeout(() => window.location.href = data.redirectUrl || '/dashboard', 500);
             } else {
-                // Falha
                 updateAlert('error', data.mensagem || 'Erro ao efetuar login.');
             }
         } catch (err) {
-            console.error('Erro de rede/conexão:', err);
-            updateAlert('error', 'Não foi possível conectar ao servidor (Erro de rede).');
+            console.error('Erro:', err);
+            updateAlert('error', 'Não foi possível conectar ao servidor.');
         }
     });
 </script>

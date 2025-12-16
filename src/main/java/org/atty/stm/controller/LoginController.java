@@ -2,16 +2,18 @@ package org.atty.stm.controller;
 
 import io.quarkus.qute.Location;
 import io.quarkus.qute.Template;
-import jakarta.enterprise.context.RequestScoped; // IMPORTANTE: Necessário para evitar vazamento de dados entre usuários
+import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.atty.stm.service.AuthService;
+import org.atty.stm.repository.UsuarioRepository; // <--- NOVO IMPORT
+import org.atty.stm.model.Usuario;             // <--- NOVO IMPORT
 
 import java.util.Map;
 
 @Path("/login")
-@RequestScoped // <--- A CORREÇÃO PRINCIPAL ESTÁ AQUI
+@RequestScoped
 public class LoginController extends ControllerBase {
 
     @Inject
@@ -21,8 +23,9 @@ public class LoginController extends ControllerBase {
     @Inject
     AuthService authService;
 
-    // Nota: UriInfo e SecurityContext já existem na ControllerBase,
-    // mas mantivemos aqui caso você prefira usar os locais.
+    @Inject
+    UsuarioRepository usuarioRepository; // <--- INJEÇÃO NECESSÁRIA PARA VER O PERFIL
+
     @Context
     UriInfo uriInfo;
 
@@ -32,7 +35,7 @@ public class LoginController extends ControllerBase {
     /**
      * POST /login/logar
      * Recebe JSON { email, senha } e delega para AuthService.authenticate.
-     * Retorna header 'token' contendo o JWT (o filtro transforma em cookie).
+     * Retorna header 'token' contendo o JWT e no corpo a URL de redirecionamento.
      */
     @POST
     @Path("/logar")
@@ -50,15 +53,32 @@ public class LoginController extends ControllerBase {
         }
 
         try {
-            // usa helpers da ControllerBase para auditoria (IP / UA)
             String ip = getIpAddress();
             String ua = getUserAgent();
 
-            // chama o método que autentica e gera o JWT
+            // 1. Autentica
             String jwt = authService.authenticate(email, senha, ip, ua);
 
-            // Retorna token no header 'token' — seu JWTResponseFilter criará o cookie
-            return Response.ok(Map.of("success", true, "mensagem", "Login efetuado com sucesso."))
+            // 2. Busca o usuário para decidir o redirecionamento
+            Usuario usuario = usuarioRepository.buscarPorEmail(email);
+
+            // 3. Define a rota baseada no perfil
+            String redirectUrl = "/dashboard"; // Padrão (Advogado)
+
+            if (usuario != null) {
+                if ("MASTER".equals(usuario.perfil)) {
+                    redirectUrl = "/dashboard/master";
+                } else if ("CLIENTE".equals(usuario.perfil)) {
+                    redirectUrl = "/dashboard/cliente";
+                }
+            }
+
+            // 4. Retorna com a URL correta
+            return Response.ok(Map.of(
+                            "success", true,
+                            "mensagem", "Login efetuado com sucesso.",
+                            "redirectUrl", redirectUrl // <--- O Frontend vai usar isso
+                    ))
                     .header("token", jwt)
                     .build();
 
@@ -67,7 +87,7 @@ public class LoginController extends ControllerBase {
                     .entity(Map.of("success", false, "mensagem", e.getMessage()))
                     .build();
         } catch (Exception e) {
-            e.printStackTrace(); // Bom para debugar no console
+            e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("success", false, "mensagem", "Erro interno no servidor."))
                     .build();
@@ -77,20 +97,14 @@ public class LoginController extends ControllerBase {
     @GET
     @Produces(MediaType.TEXT_HTML)
     public Response getLogin() {
-        // Se o usuário já estiver logado (cookie válido), redireciona para a dashboard correta
         if (securityContext.getUserPrincipal() != null) {
             return redirecionarPorPerfil();
         }
-
         return Response.ok(loginTemplate.data("contextPath", uriInfo.getBaseUri())).build();
     }
 
-    /**
-     * Método auxiliar para enviar cada perfil para sua tela correta.
-     * Isso evita que um Master caia na tela de Cliente ou vice-versa.
-     */
     private Response redirecionarPorPerfil() {
-        String destino = "/dashboard"; // Default (Advogado)
+        String destino = "/dashboard";
 
         if (securityContext.isUserInRole("MASTER")) {
             destino = "/dashboard/master";
@@ -106,13 +120,12 @@ public class LoginController extends ControllerBase {
     @GET
     @Path("/logout")
     public Response logout() {
-        // Garante a destruição do cookie antigo
         NewCookie expiredCookie = new NewCookie.Builder("token")
                 .value("")
                 .path("/")
                 .maxAge(0)
                 .httpOnly(true)
-                .secure(false) // Mude para true em produção com HTTPS
+                .secure(false)
                 .build();
 
         return Response.status(Response.Status.SEE_OTHER)
