@@ -11,7 +11,7 @@
 
         // Total de clientes ativos
         public long countAllAtivos() {
-            return count("ativo = true");
+            return count("status = 'ATIVO'");
         }
 
         // Total de clientes de um advogado específico
