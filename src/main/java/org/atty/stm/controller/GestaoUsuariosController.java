@@ -2,6 +2,7 @@ package org.atty.stm.controller;
 
 import io.quarkus.qute.Template;
 import io.quarkus.qute.Location;
+import io.quarkus.qute.TemplateInstance;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -27,6 +28,15 @@ public class GestaoUsuariosController extends ControllerBase {
 
     @Inject
     AdvogadoVerificacaoService advogadoVerificacaoService;
+
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    public TemplateInstance getGestaoUsuariosPage() {
+        Usuario usuario = getUsuarioEntity(); // Recupera usuário logado (do ControllerBase)
+
+        // 3. Renderiza o template enviando o objeto usuario
+        return gestaoUsuariosTemplate.data("usuario", usuario);
+    }
 
     // ... (Métodos de renderização, /api/todos, /api/advogados/pendentes, /api/{id}/toggle-ativo, /api/estatisticas - SEM MUDANÇAS)
 
