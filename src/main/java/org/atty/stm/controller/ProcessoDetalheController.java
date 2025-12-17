@@ -26,7 +26,7 @@ import java.util.List;
 public class ProcessoDetalheController extends ControllerBase {
 
     @Inject
-    @Location("processodetalhe.html")
+    @Location("processoDetalhe.html")
     Template processodetalheTemplate;
 
     @Inject
