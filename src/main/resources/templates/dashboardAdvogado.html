@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
     <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/header.css">
+
+    <script src="/js/dashboardAdvogado.js" defer></script>
 
     <style>
         /* CSS ESPECÍFICO DA PÁGINA (Layout geral e Sidebar vêm de sidebar.css) */
@@ -27,27 +30,6 @@
             display: flex;
             min-height: 100vh;
             flex-direction: column;
-        }
-
-        /* HEADER */
-        .main-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-            position: sticky;
-            top: 0;
-            z-index: 1030;
-            height: 56px;
-        }
-
-        .navbar-brand img {
-            height: 35px;
-            filter: brightness(0) invert(1);
-            margin-top: -3px;
-        }
-        .navbar-brand span {
-            font-weight: 600;
-            font-size: 1.3rem;
-            margin-left: 0.5rem;
         }
 
         /* TÍTULO */
@@ -127,32 +109,7 @@
 </head>
 <body>
 
-<header class="main-header">
-    <nav class="navbar navbar-expand-lg navbar-dark px-3">
-        <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <a class="navbar-brand d-flex align-items-center me-auto" href="/">
-            <img src="/img/ld.png" alt="Logo STM-ADV" class="me-2">
-            <span>STM-ADV</span>
-        </a>
-
-        <div class="navbar-nav align-items-center">
-            <span class="nav-link text-white me-3 d-none d-lg-block">
-                {#if usuario.perfil}
-                    <span class="badge bg-info text-white ms-1 text-uppercase me-2">{usuario.perfil}</span>
-                {/if}
-                <i class="bi bi-person-circle me-1"></i>
-                {#if usuario}
-                    {usuario.nome ?: 'Usuário'}
-                {#else}
-                    <span>Carregando...</span>
-                {/if}
-            </span>
-        </div>
-    </nav>
-</header>
+    {#include header.html /}
 
 <div class="d-flex flex-grow-1">
 
@@ -284,98 +241,21 @@
     </main>
 </div>
 
-<footer class="main-footer mt-auto">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
-                <p class="mb-0 small">&copy; <span id="footerYear">2024</span> STM-ADV. Todos os direitos reservados.</p>
-            </div>
-            <div class="col-md-6 text-center text-md-end">
-                <a href="/sobre" class="me-3 small">Sobre</a>
-                <a href="/contato" class="me-3 small">Contato</a>
-                <a href="/privacidade" class="small">Privacidade</a>
+    <footer class="main-footer mt-auto">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                    <p class="mb-0 small">&copy; <span id="footerYear">2024</span> STM-ADV. Todos os direitos reservados.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="/sobre" class="me-3 small">Sobre</a>
+                    <a href="/contato" class="me-3 small">Contato</a>
+                    <a href="/privacidade" class="small">Privacidade</a>
+                </div>
             </div>
         </div>
-    </div>
-</footer>
-
+    </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Função de Logout
-    function fazerLogout() {
-        if (!confirm('Deseja realmente sair do sistema?')) return;
-        fetch('/login/logout', { method: 'POST' })
-            .then(() => window.location.href = '/login')
-            .catch(() => window.location.href = '/login');
-    }
-
-    // Função para calcular e exibir o percentual
-    function calcularPercentual() {
-        const processosAtivos = parseInt(document.getElementById('processosAtivos').textContent) || 0;
-        const totalProcessos = parseInt(document.getElementById('meusProcessos').textContent) || 0;
-
-        let percentual = 0;
-        if (totalProcessos > 0) {
-            percentual = Math.round((processosAtivos / totalProcessos) * 100);
-        }
-
-        const barraProgresso = document.getElementById('barraProgresso');
-        const percentualAtivos = document.getElementById('percentualAtivos');
-
-        if (barraProgresso) barraProgresso.style.width = percentual + '%';
-        if (percentualAtivos) percentualAtivos.textContent = percentual + '%';
-
-        const statusProcessosTexto = document.getElementById('statusProcessosTexto');
-        if (statusProcessosTexto) statusProcessosTexto.textContent = processosAtivos + ' / ' + totalProcessos;
-    }
-
-    // Função para carregar dados assincronamente (fetch)
-    async function carregarDashboardAsync() {
-        try {
-            // Chamada ao endpoint que fornece o DTO (DashboardAdvogadoController)
-            const response = await fetch('/dashboard/api/stats');
-            if (!response.ok) throw new Error('Erro ao carregar dashboard: ' + response.status);
-
-            const dados = await response.json();
-
-            // Atualiza os elementos com os dados
-            document.getElementById('meusProcessos').textContent = dados.totalProcessos || 0; // Usando totalProcessos do DTO
-            document.getElementById('processosAtivos').textContent = dados.processosAtivos || 0;
-            document.getElementById('meusClientes').textContent = dados.totalClientes || 0;
-            document.getElementById('compromissosHoje').textContent = dados.compromissosHoje || 0;
-
-            // Recalcula o percentual após a atualização dos dados
-            calcularPercentual();
-
-        } catch (error) {
-            console.error('Erro ao carregar dados do dashboard:', error);
-        }
-    }
-
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Configuração de Sidebar (Mobile)
-        const sidebar = document.getElementById('sidebarNav');
-        const overlay = document.querySelector('.sidebar-overlay');
-        if (sidebar && overlay) {
-            sidebar.addEventListener('show.bs.collapse', () => overlay.style.display = 'block');
-            sidebar.addEventListener('hide.bs.collapse', () => overlay.style.display = 'none');
-            overlay.addEventListener('click', () => {
-                const bsCollapse = bootstrap.Collapse.getInstance(sidebar);
-                if (bsCollapse) bsCollapse.hide();
-            });
-        }
-
-        // Ano do footer
-        document.getElementById('footerYear').textContent = new Date().getFullYear();
-
-        // 1. Cálcula a primeira vez com os dados do servidor (renderização Qute)
-        calcularPercentual();
-
-        // 2. Carrega dados assincronamente (fetch) para garantir que estão atualizados
-        carregarDashboardAsync();
-    });
-</script>
 
 </body>
 </html>
