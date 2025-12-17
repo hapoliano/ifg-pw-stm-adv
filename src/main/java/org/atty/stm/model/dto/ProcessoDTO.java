@@ -13,6 +13,7 @@ public class ProcessoDTO {
 
     private Long advogadoResponsavelId;
     private String advogadoResponsavel;
+    private String advogadoEmail;
 
     private String status;
     private String tipo;
@@ -63,6 +64,9 @@ public class ProcessoDTO {
 
     public String getAdvogadoResponsavel() { return advogadoResponsavel; }
     public void setAdvogadoResponsavel(String advogadoResponsavel) { this.advogadoResponsavel = advogadoResponsavel; }
+
+    public String getAdvogadoEmail() { return advogadoEmail; }
+    public void setAdvogadoEmail(String advogadoEmail) { this.advogadoEmail = advogadoEmail; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

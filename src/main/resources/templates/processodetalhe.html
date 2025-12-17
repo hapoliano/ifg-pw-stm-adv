@@ -218,19 +218,17 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <i class="bi bi-person-badge me-2"></i> Envolvidos
+                <div class="card-header">
+                    <i class="bi bi-person-badge me-2"></i> Envolvidos
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Advogado Responsável:</strong>
+                        <div>{processo.advogadoResponsavel ?: 'Não Atribuído'}</div>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <strong>Advogado Responsável:</strong>
-                            <div>{processo.advogadoResponsavel.nome ?: 'Não Atribuído'}</div>
-                        </div>
-                        <div class="mb-3">
-                            <strong>Advogado Email:</strong>
-                            <div>{processo.advogadoResponsavel.email ?: '-'}</div>
-                        </div>
+                    <div class="mb-3">
+                        <strong>Advogado Email:</strong>
+                        <div>{processo.advogadoEmail ?: '-'}</div>
                     </div>
                 </div>
 

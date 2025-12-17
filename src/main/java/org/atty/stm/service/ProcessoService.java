@@ -69,7 +69,7 @@ public class ProcessoService {
         dto.setDescricao(processo.descricao);
 
         // Converte o Enum ProcessoStatus (Model) para String (DTO)
-        dto.setStatus(processo.status.toString());
+        dto.setStatus(processo.status != null ? processo.status.toString() : null);
 
         // Mapeamento de detalhes
         dto.setTipo(processo.tipo);
@@ -82,9 +82,18 @@ public class ProcessoService {
         dto.setValorCondenacao(processo.valorCondenacao);
         dto.setObservacoes(processo.observacoes);
 
-        // Mapeamento de envolvidos (Nomes para visualização no DTO)
+        // Mapeamento de envolvidos
         dto.setCliente(processo.cliente != null ? processo.cliente.nome : "Não Definido");
-        dto.setAdvogadoResponsavel(processo.advogadoResponsavel != null ? processo.advogadoResponsavel.nome : "N/A");
+
+        // CORREÇÃO: Lógica expandida para pegar Nome e Email do Advogado
+        if (processo.advogadoResponsavel != null) {
+            dto.setAdvogadoResponsavel(processo.advogadoResponsavel.nome);
+            // Certifique-se de ter criado o campo 'advogadoEmail' no ProcessoDTO conforme instrução anterior
+            dto.setAdvogadoEmail(processo.advogadoResponsavel.email);
+        } else {
+            dto.setAdvogadoResponsavel("N/A");
+            dto.setAdvogadoEmail(null);
+        }
 
         // Mapeamento de datas (Convertendo LocalDate/LocalDateTime para String no formato "dd/MM/yyyy")
         dto.setDataAbertura(processo.dataAbertura != null ? processo.dataAbertura.format(DATE_FORMATTER) : null);
