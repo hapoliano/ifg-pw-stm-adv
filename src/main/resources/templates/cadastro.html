@@ -4,86 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro - STM-ADV</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --accent-color: #3498db;
-            --light-bg: #ecf0f1;
-        }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-bg);
-        }
-
-        .main-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .navbar-brand { font-weight: 600; font-size: 1.5rem; }
-        .navbar-brand img { height: 45px; filter: brightness(0) invert(1); }
-
-        .cadastro-container { max-width: 600px; margin: 3rem auto; }
-
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 2rem;
-            border-radius: 12px 12px 0 0 !important;
-        }
-
-        .card-header h2 { margin: 0; font-size: 1.8rem; font-weight: 600; }
-
-        .form-label { font-weight: 500; color: var(--primary-color); margin-bottom: 0.5rem; }
-
-        .form-control, .form-select {
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
-        }
-
-        .btn-cadastrar {
-            background: linear-gradient(135deg, var(--accent-color), #2980b9);
-            border: none;
-            color: white;
-            padding: 0.75rem;
-            font-weight: 500;
-            border-radius: 6px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .btn-cadastrar:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
-            background: linear-gradient(135deg, #2980b9, var(--accent-color));
-        }
-
-        .main-footer {
-            background-color: var(--primary-color);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 2rem 0;
-            margin-top: 3rem;
-        }
-
-        #campoOab { display: none; transition: all 0.5s ease-in-out; }
-        #alert-message { display: none; }
-    </style>
+    <link rel="stylesheet" href="/css/cadastro.css">
+    <script src="/js/cadastro.js" defer></script>
 </head>
 <body>
 <header class="main-header">
@@ -192,96 +118,6 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    const alertDiv = document.getElementById('alert-message');
 
-    function updateAlert(type, message) {
-        alertDiv.textContent = message;
-        alertDiv.classList.remove('alert-success', 'alert-danger');
-        if (type === 'success') alertDiv.classList.add('alert-success');
-        else if (type === 'error') alertDiv.classList.add('alert-danger');
-        alertDiv.style.display = 'block';
-    }
-
-    const tipoUsuarioSelect = document.getElementById('tipoUsuario');
-    const campoOab = document.getElementById('campoOab');
-    const inputOab = document.getElementById('oab');
-
-    tipoUsuarioSelect.addEventListener('change', function() {
-        if (this.value === 'ADVOGADO') {
-            campoOab.style.display = 'block';
-            inputOab.required = true;
-        } else {
-            campoOab.style.display = 'none';
-            inputOab.required = false;
-            inputOab.value = ''; // Limpa se mudar para cliente
-        }
-    });
-
-    document.getElementById('formCadastro').addEventListener('submit', async function (e) {
-        e.preventDefault();
-        alertDiv.style.display = 'none';
-
-        // Validação HTML5 (campos vazios)
-        if (!this.checkValidity()) {
-            e.stopPropagation();
-            this.classList.add('was-validated');
-            updateAlert('error', 'Por favor, preencha todos os campos obrigatórios.');
-            return;
-        }
-
-        const nome = document.getElementById('nome').value;
-        const email = document.getElementById('email').value;
-        const senha = document.getElementById('senha').value;
-        const confirmarSenha = document.getElementById('confirmarSenha').value;
-        const tipoUsuario = document.getElementById('tipoUsuario').value;
-        const telefone = document.getElementById('telefone').value;
-        const oab = document.getElementById('oab').value;
-
-        if (senha.length < 8) {
-            updateAlert('error', "A senha deve ter no mínimo 8 caracteres.");
-            return;
-        }
-
-        if (senha !== confirmarSenha) {
-            updateAlert('error', "As senhas não coincidem. Por favor, verifique.");
-            return;
-        }
-
-        // CRIAÇÃO DO OBJETO JSON CORRIGIDA
-        const dados = {
-            nome: nome,
-            email: email,
-            senha: senha,
-            confirmarSenha: confirmarSenha, // IMPORTANTE: Este campo deve ser enviado
-            tipoUsuario: tipoUsuario,
-            telefone: telefone,
-            oab: oab
-        };
-
-        console.log("Enviando dados:", dados); // Debug para F12
-
-        try {
-            const response = await fetch('/cadastro/cadastrar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dados)
-            });
-
-            const result = await response.json();
-
-            if (response.ok && result.success) {
-                updateAlert('success', result.mensagem);
-                setTimeout(() => window.location.href = result.redirectUrl, 1500);
-            } else {
-                console.error('Erro backend:', result);
-                updateAlert('error', "Erro: " + (result.mensagem || "Verifique os dados."));
-            }
-        } catch (error) {
-            console.error('Erro de conexão:', error);
-            updateAlert('error', "Erro de conexão com o servidor.");
-        }
-    });
-</script>
 </body>
 </html>
