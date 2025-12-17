@@ -442,17 +442,23 @@
     // Converte "dd/MM/yyyy" (Java/Visual) para "yyyy-MM-dd" (Input HTML)
     function dateToInput(dateStr) {
         if (!dateStr) return '';
+
+        // Se já estiver no formato ISO (yyyy-MM-dd), retorna direto
+        if (dateStr.includes('-')) return dateStr;
+
+        // Se estiver no formato BR (dd/MM/yyyy), converte
         const parts = dateStr.split('/');
-        if (parts.length !== 3) return '';
-        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+
+        return '';
     }
 
     // Converte "yyyy-MM-dd" (Input HTML) para "dd/MM/yyyy" (Java API)
     function inputToDate(dateVal) {
-        if (!dateVal) return null;
-        const parts = dateVal.split('-');
-        if (parts.length !== 3) return null;
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+        if (!dateVal || dateVal.trim() === '') return null;
+        return dateVal;
     }
 
     // --- MODAL STATUS ---

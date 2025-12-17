@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 public class MapperUtils {
 
+    private static final java.time.format.DateTimeFormatter DATE_FMT = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     // -----------------------------------------------------
     // USUÁRIO
     // -----------------------------------------------------
@@ -95,13 +97,14 @@ public class MapperUtils {
         dto.setValorCondenacao(p.valorCondenacao);
         dto.setObservacoes(p.observacoes);
 
-        dto.setDataAbertura(p.dataAbertura != null ? p.dataAbertura.toString() : null);
-        dto.setDataDistribuicao(p.dataDistribuicao != null ? p.dataDistribuicao.toString() : null);
-        dto.setDataConclusao(p.dataConclusao != null ? p.dataConclusao.toString() : null);
-        dto.setPrazoFinal(p.prazoFinal != null ? p.prazoFinal.toString() : null);
+        dto.setDataAbertura(p.dataAbertura != null ? p.dataAbertura.format(DATE_FMT) : null);
 
-        dto.setDataCriacao(p.dataCriacao != null ? p.dataCriacao.toString() : null);
-        dto.setDataAtualizacao(p.dataAtualizacao != null ? p.dataAtualizacao.toString() : null);
+        dto.setDataDistribuicao(p.dataDistribuicao != null ? p.dataDistribuicao.format(DATE_FMT) : null);
+        dto.setDataConclusao(p.dataConclusao != null ? p.dataConclusao.format(DATE_FMT) : null);
+        dto.setPrazoFinal(p.prazoFinal != null ? p.prazoFinal.format(DATE_FMT) : null);
+
+        dto.setDataCriacao(p.dataCriacao != null ? p.dataCriacao.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : null);
+        dto.setDataAtualizacao(p.dataAtualizacao != null ? p.dataAtualizacao.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) : null);
 
         return dto;
     }
