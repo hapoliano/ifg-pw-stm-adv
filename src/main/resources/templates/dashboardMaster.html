@@ -9,19 +9,19 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
     <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/header.css">
 
     <link rel="preconnect" href="/dashboard/master">
     <link rel="preconnect" href="/dashboard-master/alertas">
 
     <style>
-        /* CSS ESPECÍFICO DO DASHBOARD (O que é comum foi para sidebar.css) */
+        /* CSS ESPECÍFICO DO DASHBOARD */
         :root {
-            --primary-color: #2c3e50; /* Cinza Escuro (Sidebar/Header) */
-            --secondary-color: #34495e; /* Cinza Escuro 2 */
-            --accent-color: #3498db; /* Azul */
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
             --light-bg: #f8f9fa;
             --bs-body-bg: var(--light-bg);
-            /* Gradientes para os Cards (Cores Aprovadas) */
             --success-color: #2ecc71;
             --danger-color: #e74c3c;
         }
@@ -32,27 +32,6 @@
             display: flex;
             min-height: 100vh;
             flex-direction: column;
-        }
-
-        /* HEADER PADRONIZADO */
-        .main-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-            position: sticky;
-            top: 0;
-            z-index: 1030;
-            height: 56px;
-        }
-
-        .navbar-brand img {
-            height: 35px;
-            filter: brightness(0) invert(1);
-            margin-top: -3px;
-        }
-        .navbar-brand span {
-            font-weight: 600;
-            font-size: 1.3rem;
-            margin-left: 0.5rem;
         }
 
         /* TÍTULO DA PÁGINA PADRONIZADO */
@@ -112,7 +91,7 @@
             font-size: 1.1rem;
         }
 
-        /* Gradientes dos Cards (Cores Aprovadas) */
+        /* Gradientes dos Cards */
         .bg-gradient-success { background-image: linear-gradient(310deg, #2dce89, #2ecc71); }
         .bg-gradient-info { background-image: linear-gradient(310deg, #11c1e0, #3498db); }
         .bg-gradient-danger { background-image: linear-gradient(310deg, #f5365c, #e74c3c); }
@@ -152,30 +131,7 @@
 </head>
 <body>
 
-<header class="main-header">
-    <nav class="navbar navbar-expand-lg navbar-dark px-3">
-        <button class="navbar-toggler me-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <a class="navbar-brand d-flex align-items-center me-auto" href="/">
-            <img src="/img/ld.png" alt="Logo STM-ADV" class="me-2">
-            <span>STM-ADV</span>
-        </a>
-
-        <div class="navbar-nav align-items-center">
-            <span class="nav-link text-white me-3 d-none d-lg-block">
-                <i class="bi bi-person-circle me-1"></i>
-                {#if usuario}
-                    {usuario.nome ?: 'Usuário'}
-                    <small class="badge bg-light text-dark ms-1 text-uppercase">{usuario.perfil ?: 'MASTER'}</small>
-                {#else}
-                    <span>Carregando...</span>
-                {/if}
-            </span>
-        </div>
-    </nav>
-</header>
+    {#include header.html /}
 
 <div class="d-flex flex-grow-1">
     <aside class="sidebar collapse d-lg-block" id="sidebarNav">
@@ -516,9 +472,6 @@
 
         // 3. Carrega dados (assíncronos)
         carregarDashboard();
-        // O teste manual é executado 3 segundos após a inicialização
-        // se desejar usar a função carregarAlertas(), remova ou comente a linha abaixo
-        // carregarAlertas();
 
         // 4. TESTE: Executa teste manual após 3 segundos
         setTimeout(testeAlertasManualmente, 3000);
