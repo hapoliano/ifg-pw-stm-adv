@@ -1,6 +1,7 @@
 package org.atty.stm.service;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -299,5 +300,15 @@ public class ProcessoService {
         }
 
         processo.delete();
+    }
+
+    /** Retorna lista de clientes ordenada para combobox */
+    public List<Cliente> listarClientesOpcoes() {
+        return clienteRepository.listAll(Sort.by("nome"));
+    }
+
+    /** Retorna lista de advogados/masters para combobox */
+    public List<Usuario> listarAdvogadosOpcoes() {
+        return usuarioRepository.list("perfil = ?1 or perfil = ?2", Sort.by("nome"), "ADVOGADO", "MASTER");
     }
 }

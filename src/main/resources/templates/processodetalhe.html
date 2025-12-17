@@ -52,7 +52,7 @@
             margin-left: 0.5rem;
         }
 
-        /* FOOTER PADRONIZADO (Corrigido para telas sem sidebar) */
+        /* FOOTER PADRONIZADO */
         .main-footer {
             background-color: #ffffff;
             color: var(--primary-color);
@@ -62,18 +62,16 @@
             border-top: 1px solid #dee2e6;
             font-size: 0.85rem;
         }
-        /* Não precisa de padding-left alto, pois não tem sidebar */
         .main-footer .container-fluid { padding-left: 1rem; padding-right: 1rem; }
 
-        /* TELA DE DETALHES (SEM SIDEBAR) */
+        /* TELA DE DETALHES */
         .content-full {
-            /* ESTE É O CONTAINER PRINCIPAL DA TELA SEM SIDEBAR */
             padding: 2rem;
             flex-grow: 1;
-            margin-left: 0; /* Garante que não há margem de sidebar */
+            margin-left: 0;
         }
 
-        /* TÍTULO E CARDS PADRONIZADOS */
+        /* TÍTULO E CARDS */
         .page-title {
             color: var(--primary-color);
             font-weight: 600;
@@ -109,6 +107,7 @@
             border-radius: 0.5rem;
             font-weight: bold;
         }
+        /* Cores dos Badges */
         .badge.em-andamento { background-image: linear-gradient(310deg, var(--warning-color), #e67e22) !important; color: white !important; }
         .badge.concluido { background-image: linear-gradient(310deg, var(--success-color), #27ae60) !important; color: white !important; }
         .badge.arquivado { background-image: linear-gradient(310deg, #8392ab, #6c757d) !important; color: white !important; }
@@ -157,14 +156,21 @@
                 <a href="/processos" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left me-2"></i>Voltar
                 </a>
-                <button class="btn btn-warning" onclick="abrirModalStatus()">
-                    <i class="bi bi-arrow-repeat me-2"></i>Mudar Status
-                </button>
+
                 {#if usuario.perfil == 'MASTER' || usuario.perfil == 'ADVOGADO'}
-                <button class="btn btn-danger" onclick="excluirProcesso({processo.id})">
-                    <i class="bi bi-trash me-2"></i>Excluir
-                </button>
-                {/if} </div>
+                    <button class="btn btn-primary" onclick="abrirModalEdicao()">
+                        <i class="bi bi-pencil-square me-2"></i>Editar
+                    </button>
+
+                    <button class="btn btn-warning" onclick="abrirModalStatus()">
+                        <i class="bi bi-arrow-repeat me-2"></i>Status
+                    </button>
+
+                    <button class="btn btn-danger" onclick="excluirProcesso({processo.id})">
+                        <i class="bi bi-trash me-2"></i>Excluir
+                    </button>
+                {/if}
+            </div>
         </div>
 
         <div class="row">
@@ -175,7 +181,7 @@
                             <div>
                                 <h3 class="mb-2 text-warning">{processo.numeroProcesso ?: 'NÚMERO NÃO REGISTRADO'}</h3>
                                 <h4 class="mb-1 text-white">{processo.titulo}</h4>
-                                <p class="mb-0 opacity-75">Cliente: {processo.cliente.nome ?: 'Não Definido'}</p>
+                                <p class="mb-0 opacity-75">Cliente: {processo.cliente ?: 'Não Definido'}</p>
                             </div>
                             <span id="statusProcesso" class="badge status-badge text-uppercase fs-6 {processo.status.toLowerCase().replace('_', '-')}">
                                 {processo.status.replace('_', ' ')}
@@ -200,6 +206,12 @@
                             <div class="col-md-6 mb-3">
                                 <strong>Vara/Comarca:</strong> <div>{processo.vara ?: '-'} / {processo.comarca ?: '-'}</div>
                             </div>
+                            <div class="col-md-6 mb-3">
+                                <strong>Prioridade:</strong> <div>{processo.prioridade ?: 'Normal'}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong>Valor da Causa:</strong> <div>R$ {processo.valorCausa ?: '0,00'}</div>
+                            </div>
                         </div>
 
                         <h5 class="text-primary mt-3 mb-3"><i class="bi bi-journal-text me-2"></i> Observações</h5>
@@ -218,17 +230,19 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card-header">
-                    <i class="bi bi-person-badge me-2"></i> Envolvidos
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <strong>Advogado Responsável:</strong>
-                        <div>{processo.advogadoResponsavel ?: 'Não Atribuído'}</div>
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <i class="bi bi-person-badge me-2"></i> Envolvidos
                     </div>
-                    <div class="mb-3">
-                        <strong>Advogado Email:</strong>
-                        <div>{processo.advogadoEmail ?: '-'}</div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Advogado Responsável:</strong>
+                            <div>{processo.advogadoResponsavel ?: 'Não Atribuído'}</div>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Advogado Email:</strong>
+                            <div>{processo.advogadoEmail ?: '-'}</div>
+                        </div>
                     </div>
                 </div>
 
@@ -248,6 +262,9 @@
                         </div>
                         <div class="mb-3">
                             <strong>Data de Distribuição:</strong> <div>{processo.dataDistribuicao ?: 'Não informada'}</div>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Data de Conclusão:</strong> <div>{processo.dataConclusao ?: '-'}</div>
                         </div>
                     </div>
                 </div>
@@ -279,17 +296,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Selecione o novo status para o processo **{processo.numeroProcesso ?: 'N/A'} - {processo.titulo ?: 'Sem Título'}**:</p>
-                <div class="mb-3">
-                    <label for="novoStatus" class="form-label">Novo Status</label>
-                    <select class="form-select" id="novoStatus">
-                        <option value="EM_ANDAMENTO" {processo.status == 'EM_ANDAMENTO' ? 'selected' : ''}>Em Andamento</option>
-                        <option value="CONCLUIDO" {processo.status == 'CONCLUIDO' ? 'selected' : ''}>Concluído</option>
-                        <option value="ARQUIVADO" {processo.status == 'ARQUIVADO' ? 'selected' : ''}>Arquivado</option>
-                        <option value="SUSPENSO" {processo.status == 'SUSPENSO' ? 'selected' : ''}>Suspenso</option>
-                        <option value="CANCELADO" {processo.status == 'CANCELADO' ? 'selected' : ''}>Cancelado</option>
-                    </select>
-                </div>
+                <p>Selecione o novo status para o processo:</p>
+                <select class="form-select" id="novoStatus">
+                    <option value="EM_ANDAMENTO" {processo.status == 'EM_ANDAMENTO' ? 'selected' : ''}>Em Andamento</option>
+                    <option value="CONCLUIDO" {processo.status == 'CONCLUIDO' ? 'selected' : ''}>Concluído</option>
+                    <option value="ARQUIVADO" {processo.status == 'ARQUIVADO' ? 'selected' : ''}>Arquivado</option>
+                    <option value="SUSPENSO" {processo.status == 'SUSPENSO' ? 'selected' : ''}>Suspenso</option>
+                    <option value="CANCELADO" {processo.status == 'CANCELADO' ? 'selected' : ''}>Cancelado</option>
+                </select>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -299,95 +313,235 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalEdicao" tabindex="-1">
+    <div class="modal-dialog modal-lg"> <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Processo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEdicao">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Número do Processo</label>
+                            <input type="text" class="form-control" id="editNumero" value="{processo.numeroProcesso}">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">Título</label>
+                            <input type="text" class="form-control" id="editTitulo" value="{processo.titulo}">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Descrição</label>
+                            <textarea class="form-control" id="editDescricao" rows="3">{processo.descricao}</textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Cliente</label>
+                            <select class="form-select" id="editCliente">
+                                <option value="">Selecione...</option>
+                                {#for c in listaClientes}
+                                    <option value="{c.id}" {#if c.id == processo.clienteId}selected{/if}>{c.nome}</option>
+                                {/for}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Advogado Responsável</label>
+                            <select class="form-select" id="editAdvogado">
+                                <option value="">Selecione...</option>
+                                {#for adv in listaAdvogados}
+                                    <option value="{adv.id}" {#if adv.id == processo.advogadoResponsavelId}selected{/if}>{adv.nome}</option>
+                                {/for}
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Tipo</label>
+                            <input type="text" class="form-control" id="editTipo" value="{processo.tipo ?: ''}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Área</label>
+                            <input type="text" class="form-control" id="editArea" value="{processo.area ?: ''}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Prioridade</label>
+                            <select class="form-select" id="editPrioridade">
+                                <option value="BAIXA" {#if processo.prioridade == 'BAIXA'}selected{/if}>Baixa</option>
+                                <option value="MEDIA" {#if processo.prioridade == 'MEDIA'}selected{/if}>Média</option>
+                                <option value="ALTA" {#if processo.prioridade == 'ALTA'}selected{/if}>Alta</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Tribunal</label>
+                            <input type="text" class="form-control" id="editTribunal" value="{processo.tribunal ?: ''}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Vara</label>
+                            <input type="text" class="form-control" id="editVara" value="{processo.vara ?: ''}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Comarca</label>
+                            <input type="text" class="form-control" id="editComarca" value="{processo.comarca ?: ''}">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Valor da Causa (R$)</label>
+                            <input type="number" step="0.01" class="form-control" id="editValorCausa" value="{processo.valorCausa}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Valor Condenação (R$)</label>
+                            <input type="number" step="0.01" class="form-control" id="editValorCondenacao" value="{processo.valorCondenacao}">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">Data Abertura</label>
+                            <input type="date" class="form-control" id="editDataAbertura">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Data Distribuição</label>
+                            <input type="date" class="form-control" id="editDataDistribuicao">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Prazo Final</label>
+                            <input type="date" class="form-control" id="editPrazoFinal">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Data Conclusão</label>
+                            <input type="date" class="form-control" id="editDataConclusao">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Observações</label>
+                            <textarea class="form-control" id="editObservacoes" rows="2">{processo.observacoes ?: ''}</textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarEdicao({processo.id})">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Função de fetch padronizada e lógica de comunicação (mantida da correção anterior)
     function fetchAutenticado(url, options = {}) {
-        return fetch(url, {
-            ...options,
-            credentials: 'include'
-        });
+        return fetch(url, { ...options, credentials: 'include' });
     }
 
-    // Inicialização do Footer
     document.addEventListener('DOMContentLoaded', function() {
         if(document.getElementById('footerYear')) {
             document.getElementById('footerYear').textContent = new Date().getFullYear();
         }
     });
 
-    // Abrir modal de status
-    function abrirModalStatus() {
-        // Lógica para pré-selecionar o status atual
-        const statusElement = document.getElementById('statusProcesso');
-        if (statusElement) {
-            // Converte o texto do status para o valor do enum (ex: "Em Andamento" -> "EM_ANDAMENTO")
-            const currentStatusText = statusElement.textContent.trim().toUpperCase().replace(' ', '_');
-            document.getElementById('novoStatus').value = currentStatusText;
-        }
+    // --- FUNÇÕES AUXILIARES DE DATA ---
+    // Converte "dd/MM/yyyy" (Java/Visual) para "yyyy-MM-dd" (Input HTML)
+    function dateToInput(dateStr) {
+        if (!dateStr) return '';
+        const parts = dateStr.split('/');
+        if (parts.length !== 3) return '';
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
 
+    // Converte "yyyy-MM-dd" (Input HTML) para "dd/MM/yyyy" (Java API)
+    function inputToDate(dateVal) {
+        if (!dateVal) return null;
+        const parts = dateVal.split('-');
+        if (parts.length !== 3) return null;
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    // --- MODAL STATUS ---
+    function abrirModalStatus() {
         const modal = new bootstrap.Modal(document.getElementById('modalStatus'));
         modal.show();
     }
 
-    // ----------------------------------------------------
-    // LÓGICA DE COMUNICAÇÃO (ATUALIZAR STATUS)
-    // ----------------------------------------------------
     async function salvarNovoStatus(processoId) {
         const novoStatus = document.getElementById('novoStatus').value;
         const modalElement = document.getElementById('modalStatus');
         const modal = bootstrap.Modal.getInstance(modalElement);
 
         try {
-            // CORREÇÃO AQUI: Uso de aspas simples e concatenação (+) em vez de crase (`)
-            // Isso impede que o Qute tente ler a variável JS
             const url = '/processodetalhe/' + processoId + '/status';
-
             const response = await fetchAutenticado(url, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: novoStatus })
             });
 
-            if (response.status === 401) {
-                window.location.href = '/login';
-                return;
-            }
-
             if (response.ok) {
                 if(modal) modal.hide();
                 alert('Status atualizado com sucesso!');
                 window.location.reload();
             } else {
-                // Tenta ler o erro como JSON, se falhar, usa o statusText
-                let errorMsg = response.statusText;
-                try {
-                    const errorData = await response.json();
-                    if(errorData && errorData.error) errorMsg = errorData.error;
-                } catch(e) {} // Ignora erro de parse se não for JSON
-
-                alert('Erro ao atualizar status: ' + errorMsg);
+                alert('Erro ao atualizar status.');
             }
         } catch (error) {
-            console.error('Erro ao atualizar status:', error);
-            alert('Erro de comunicação ao atualizar status');
+            console.error(error);
+            alert('Erro de comunicação.');
         }
     }
 
-    // ----------------------------------------------------
-    // LÓGICA DE COMUNICAÇÃO (EXCLUIR PROCESSO)
-    // ----------------------------------------------------
-    async function excluirProcesso(processoId) {
-        if (!confirm('ATENÇÃO! Tem certeza que deseja excluir este processo? Esta ação é irreversível.')) {
-            return;
-        }
+    // --- MODAL EDIÇÃO (NOVO) ---
+    function abrirModalEdicao() {
+        // Preenche as datas nos inputs (conversão de formato necessária)
+        // Os valores originais vêm do template Qute
+        const dtAbertura = "{processo.dataAbertura ?: ''}";
+        const dtDist = "{processo.dataDistribuicao ?: ''}";
+        const dtPrazo = "{processo.prazoFinal ?: ''}";
+        const dtConclusao = "{processo.dataConclusao ?: ''}";
+
+        document.getElementById('editDataAbertura').value = dateToInput(dtAbertura);
+        document.getElementById('editDataDistribuicao').value = dateToInput(dtDist);
+        document.getElementById('editPrazoFinal').value = dateToInput(dtPrazo);
+        document.getElementById('editDataConclusao').value = dateToInput(dtConclusao);
+
+        const modal = new bootstrap.Modal(document.getElementById('modalEdicao'));
+        modal.show();
+    }
+
+    async function salvarEdicao(processoId) {
+        // Coleta os dados do formulário
+        const dto = {
+            id: processoId,
+            numeroProcesso: document.getElementById('editNumero').value,
+            titulo: document.getElementById('editTitulo').value,
+            descricao: document.getElementById('editDescricao').value,
+            clienteId: document.getElementById('editCliente').value,
+            advogadoResponsavelId: document.getElementById('editAdvogado').value || null,
+
+            tipo: document.getElementById('editTipo').value,
+            area: document.getElementById('editArea').value,
+            tribunal: document.getElementById('editTribunal').value,
+            vara: document.getElementById('editVara').value,
+            comarca: document.getElementById('editComarca').value,
+            prioridade: document.getElementById('editPrioridade').value,
+
+            valorCausa: document.getElementById('editValorCausa').value || null,
+            valorCondenacao: document.getElementById('editValorCondenacao').value || null,
+            observacoes: document.getElementById('editObservacoes').value,
+
+            // Datas convertidas de volta para dd/MM/yyyy
+            dataAbertura: inputToDate(document.getElementById('editDataAbertura').value),
+            dataDistribuicao: inputToDate(document.getElementById('editDataDistribuicao').value),
+            prazoFinal: inputToDate(document.getElementById('editPrazoFinal').value),
+            dataConclusao: inputToDate(document.getElementById('editDataConclusao').value)
+        };
+
+        // Mantém o status original (ou podemos pegar do campo se adicionarmos)
+        dto.status = "{processo.status}";
 
         try {
-            // CORREÇÃO AQUI TAMBÉM: Concatenação de string
             const url = '/processodetalhe/' + processoId;
-
             const response = await fetchAutenticado(url, {
-                method: 'DELETE'
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dto)
             });
 
             if (response.status === 401) {
@@ -396,20 +550,36 @@
             }
 
             if (response.ok) {
-                alert('Processo excluído com sucesso!');
-                window.location.href = '/processos';
+                alert('Processo atualizado com sucesso!');
+                window.location.reload();
             } else {
                 let errorMsg = response.statusText;
                 try {
-                    const errorData = await response.json();
-                    if(errorData && errorData.error) errorMsg = errorData.error;
-                } catch(e) {}
-
-                alert('Erro ao excluir processo: ' + errorMsg);
+                    const data = await response.json();
+                    if(data.error) errorMsg = data.error;
+                } catch(e){}
+                alert('Erro ao atualizar: ' + errorMsg);
             }
         } catch (error) {
-            console.error('Erro ao excluir processo:', error);
-            alert('Erro de comunicação ao excluir processo');
+            console.error('Erro:', error);
+            alert('Erro de comunicação ao salvar alterações.');
+        }
+    }
+
+    // --- EXCLUIR ---
+    async function excluirProcesso(processoId) {
+        if (!confirm('ATENÇÃO! Tem certeza que deseja excluir este processo?')) return;
+        try {
+            const url = '/processodetalhe/' + processoId;
+            const response = await fetchAutenticado(url, { method: 'DELETE' });
+            if (response.ok) {
+                alert('Processo excluído!');
+                window.location.href = '/processos';
+            } else {
+                alert('Erro ao excluir.');
+            }
+        } catch (error) {
+            alert('Erro de comunicação.');
         }
     }
 </script>
