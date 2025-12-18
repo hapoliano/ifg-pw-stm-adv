@@ -22,7 +22,7 @@ import java.util.Map;
 public class GestaoUsuariosController extends ControllerBase {
 
     @Inject
-    @Location("gestaoUsuarios.html")
+    @Location("usuarios.html")
     Template gestaoUsuariosTemplate;
 
     @Inject
