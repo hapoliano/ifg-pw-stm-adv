@@ -1,0 +1,73 @@
+/* src/main/resources/META-INF/resources/css/videoChamada.css */
+
+/* ==================================== */
+/* ESTILOS ESPECÍFICOS DE VÍDEO */
+/* ==================================== */
+
+.video-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 200px); /* Ajuste para o padding e header/footer */
+    min-height: 500px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.video-grid {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 5px;
+    background: #202020;
+    padding: 5px;
+    overflow: hidden;
+}
+
+.video-box {
+    background: #333;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    min-height: 150px;
+}
+
+.video-box video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.video-label {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    color: #fff;
+    background: rgba(0,0,0,0.6);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    z-index: 10;
+}
+
+.video-controls {
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    background: #fff;
+    border-top: 1px solid #eee;
+}
+
+.side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.chat-box {
+    height: 350px;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}

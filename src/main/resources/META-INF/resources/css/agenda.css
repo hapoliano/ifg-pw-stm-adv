@@ -1,0 +1,26 @@
+/* src/main/resources/META-INF/resources/css/agenda.css */
+
+/* Estilos do FullCalendar */
+#calendar { max-width: 100%; }
+
+.btn-acao-agenda {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+}
+
+/* Lista lateral de próximos eventos */
+.evento-item {
+    border-left: 4px solid var(--accent-color);
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.evento-item small {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
